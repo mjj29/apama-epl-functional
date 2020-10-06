@@ -68,6 +68,62 @@ event GenerateWrap
 	sequence<any> args;
 }
 
+/** @private */
+event AccumulateGenerator
+{
+	static action create(any container, any func) returns AccumulateGenerator
+	{
+		AccumulateGenerator ag := new AccumulateGenerator;
+		ag.container := container;
+		ag.func := func.getGenericAction();
+
+		string tn := container.getTypeName();
+		if tn.find("sequence<") = 0 {
+			ag.index := 0;
+		} else if container.hasAction("generate") {
+			/*action<sequence<any>> returns any act := container.getAction("generate").getGenericAction();
+			any foo := <action<sequence<any>> returns any> act;
+			foo := <action<sequence<any>> returns any> ag.index;*/
+			ag.index := container.getAction("generate");
+		} else {
+			throw com.apama.exceptions.Exception("Can only accumulate over sequence or generator types", "typeException");
+		}
+		ag.args := [new any, new any];
+		ag.acc := any.newInstance(func.getActionReturnTypeName());
+		return ag;
+	}
+	action generate(any _) returns any
+	{
+		any value := new any;
+		switch(index) {
+			/*case action<sequence<any>> returns any: {
+				// it's a generator
+				value := index(args);
+			}*/
+			case integer: {
+				// it's a sequence
+				if not container.hasEntry(index) { return new any; }
+				value := container.getEntry(index);
+				self.index := index + 1;
+
+			}
+			default: {
+				value := index.getGenericAction()(new sequence<any>);
+			}
+		}
+		args[0] := acc;
+		args[1] := value;
+		acc := func(args);
+		log "before: "+args[0].toString()+", value: "+value.toString()+", after: "+acc.toString();
+		return acc;
+	}
+	any container;
+	action<sequence<any>> returns any func;
+	sequence<any> args;
+	any acc;
+	any index;
+}
+
 /**
 
 Provides functional operations on EPL containers, such as map, reduce, filter and slice.
@@ -349,6 +405,19 @@ event Functional
 	static action sequenceOf(any item, integer n) returns any
 	{
 		return slice(repeat(item), 0, n, 1);
+	}
+
+	/**
+	  Returns a generator which accumulates over the underlying container, returning the result after accumulating each item.
+	  Similar to reduce, but returns a generator for each item in turn, rather than just the final total.
+	  @param container The sequence, dictionary or generator to accumulate.
+	  @param func An <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB</tt> action or lambda which accumulates each item in turn and returns the new total.
+	  @returns A generator which returns each accumulated item in turn.
+	  @see reduce
+	*/
+      	static action accumulate(any container, any func) returns Generator
+	{
+		return Generator.create(new any, AccumulateGenerator.create(container, func).generate);
 	}
 }
 

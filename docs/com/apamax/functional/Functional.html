@@ -54,6 +54,11 @@
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2"><B>Action summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#accumulate()">accumulate</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
+<br>
+<br>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#count()">count</A></B>()</CODE>
 <br>
 <br>Returns a generator producing sequential integers with the first one being 0.</TD>
@@ -109,6 +114,31 @@
 <TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2"><B>Action detail</B></FONT></TH>
 </TR>
 </TABLE>
+<A NAME="accumulate()"></A>
+<H3>accumulate</H3>
+<PRE>
+<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>accumulate</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>container</tt>&nbsp;-&nbsp;The sequence, dictionary or generator to accumulate.</DD>
+<DD>
+<tt>func</tt>&nbsp;-&nbsp;An <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB</tt> action or lambda which accumulates each item in turn and returns the new total.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>A generator which returns each accumulated item in turn.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>reduce&nbsp;-&nbsp;</DD>
+</DL>
+<HR>
 <A NAME="count()"></A>
 <H3>count</H3>
 <PRE>
