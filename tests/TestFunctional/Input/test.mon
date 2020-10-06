@@ -1,0 +1,93 @@
+package com.apamax.test;
+using com.apamax.functional.Functional;
+using com.apamax.functional.Generator;
+
+/** This monitor is responsible for ...  */
+monitor TestFunctional {
+	action onload() {
+		log "Loaded monitor TestFunctional" at INFO;
+		
+		sequence<string> s := ["Hello World", "Foo bar"];
+		log s.toString();
+		s := <sequence<string>> Functional.map(s, replaceWithCows/* (any a) -> "cow" */);
+		log s.toString();
+		
+		sequence<integer> s2 := [1, 2, 3];
+		log s2.toString();
+		s := <sequence<string>> Functional.map(s2, replaceWithCows/* (any a) -> "cow" */);
+		log s.toString();
+		
+		dictionary<string, integer> d2 := {"Hello world":1, "Foo":2};
+		log d2.toString();
+		dictionary<string, string> d := <dictionary<string, string>> Functional.map(d2, replaceValueWithCows/* (string k, any v) -> "cow" */);
+		log d.toString();
+		
+		s.append("notacow");
+		s.insert("notacow", 1);
+		log s.toString();
+		s := <sequence<string>> Functional.filter(s, checkForCow/* (string s) -> s="cow" */);
+		log s.toString();
+		
+		d["baz"] := "quux";
+		d["to be or"] := "not to be";
+		log d.toString();
+		d := <dictionary<string, string>> Functional.filter(d, checkValueForCow/* (string k, string v) -> v="cow" */);
+		log d.toString();
+		
+		sequence<integer> si := [1,3,5,7,9];
+		float sum := <float> Functional.reduce(si, addup/* (float a, integer v) -> acc+v.toFloat() */);
+		log sum.toString();
+		
+		dictionary<string, integer> dsi := {"a":2, "b":4, "c":5};
+		string dstr := <string> Functional.reduce(dsi, stringify/* (string a, string k, integer v) -> acc+k+":"+v.toString()+", " */);
+		log dstr;
+		
+		Generator g := Functional.count();
+		log (<integer>g.generate()).toString();
+		log (<integer>g.generate()).toString();
+		log (<integer>g.generate()).toString();
+		g := <Generator> Functional.filter(g, isEven/*(integer i)->i%2=0 */);
+		log (<integer>g.generate()).toString();
+		log (<integer>g.generate()).toString();
+		log (<integer>g.generate()).toString();
+		g := <Generator> Functional.map(g, double/* (integer i)->i*2 */);
+		log (<integer>g.generate()).toString();
+		log (<integer>g.generate()).toString();
+		log (<integer>g.generate()).toString();
+		
+		g := Functional.generate(addCow/* (string s) -> s+"cow" */);
+		log <string>g.generate();
+		log <string>g.generate();
+		log <string>g.generate();
+		g := <Generator> Functional.map(g, countCows);
+		log (<integer>g.generate()).toString();
+		log (<integer>g.generate()).toString();
+		log (<integer>g.generate()).toString();
+		
+		sequence<integer> ncows := <sequence<integer>> Functional.slice(g, 1, 5, 2);
+		log ncows.toString();
+		sequence<string> ss := <sequence<string>> Functional.slice(["a", "b", "c", "d", "e", "f", "g"], 2, -1, 3);
+		log ss.toString();
+	}
+	action replaceWithCows(any a) returns string { return "cow"; }
+	action replaceValueWithCows(string k, any v) returns string { return "cow"; }
+	action checkForCow(string s) returns boolean { return s = "cow"; }
+	action checkValueForCow(string k, string v) returns boolean { return v = "cow"; }
+	action addup(float acc, integer value) returns float { return acc+value.toFloat(); }
+	action stringify(string acc, string k, integer v) returns string { return acc+k+":"+v.toString()+", "; }
+	action isEven(integer i) returns boolean { return i%2=0; }
+	action double(integer i) returns integer { return i*2; }
+	action addCow(string s) returns string { return s+"cow"; }
+	action countCows(string s) returns integer 
+	{
+		integer i := 0;
+		integer offs := -1;
+		while true {
+			offs := s.findFrom("cow", offs+1);
+			if offs < 0 { break; }
+			i := i + 1;
+		}
+		return i;
+	}
+}
+

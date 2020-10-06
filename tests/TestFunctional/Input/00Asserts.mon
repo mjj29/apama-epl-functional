@@ -1,0 +1,39 @@
+event Asserts
+{
+	static action equalsWithin(any a, any b, float tol) returns boolean
+	{
+		switch (a) {
+			case integer: {
+				return a = <integer> b;
+			}
+			case string: {
+				return a = <string> b;
+			}
+			case boolean: {
+				return a = <boolean> b;
+			}
+			case float: {
+				if a < (<float> b)-tol or a > (<float> b)+tol {
+					return false;
+				}
+			}
+			default: {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	static action assertEquals(string name, any a, any b)
+	{
+		if not equalsWithin(a, b, 0.0001) {
+			log "assert fail "+name+": "+a.valueToString()+" != "+b.valueToString() at ERROR;
+		}
+	}
+	static action assert(string name, boolean a)
+	{
+		if not a {
+			log "assert fail "+name at ERROR;
+		}
+	}
+}

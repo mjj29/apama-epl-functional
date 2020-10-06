@@ -1,0 +1,228 @@
+package com.apamax.functional;
+
+event Generator
+{
+	/** @private */
+	static action create(any start, any func) returns Generator
+	{
+		Generator g := new Generator;
+		g.accumulator := start;
+		g.func := func.getGenericAction();
+		g.args := [g.accumulator];
+		return g;
+	}
+	
+	action generate() returns any
+	{
+		args[0] := accumulator;
+		accumulator := func(args);
+		return accumulator;
+	}
+	
+	/** @private */
+	any accumulator;
+	/** @private */
+	action<sequence<any>> returns any func;
+	/** @private */
+	sequence<any> args;
+}
+
+/** @private */
+event GenerateIf
+{
+	action generate(any _) returns any
+	{
+		while true {
+			any candidate := wrapped.generate();
+			args[0] := candidate;
+			if <boolean> predicate(args) {
+				return candidate;
+			}
+		}
+		return new any; // never happens
+	}
+	Generator wrapped;
+	action<sequence<any>> returns any predicate;
+	sequence<any> args;
+}
+/** @private */
+event GenerateWrap
+{
+	action generate(any _) returns any
+	{
+		args[0] := wrapped.generate();
+		return func(args);
+	}
+	Generator wrapped;
+	action<sequence<any>> returns any func;
+	sequence<any> args;
+}
+
+/**
+
+eg: Functional.slice(Functional.map(Functional.filter(Functional.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);
+
+*/
+event Functional 
+{
+	static action filter(any container, any func) returns any
+	{
+		string tn := container.getTypeName();
+		any newcontainer := new any;
+		action<sequence<any>> returns any genericFunc := func.getGenericAction();
+		if tn.find("sequence<") = 0 {
+			newcontainer := any.newInstance(tn);
+			action<integer> setsize := <action<integer>> newcontainer.getAction("setSize");
+			action<> returns integer getsize := <action<> returns integer> container.getAction("size");
+			setsize(getsize());
+			any value := new any;
+			integer index := 0;
+			sequence<any> args := [value];
+			for value in container.getEntries() {
+				args[0] := value;
+				if <boolean> genericFunc(args) {
+					newcontainer.setEntry(index, value);
+					index := index + 1;
+				}
+			}
+			setsize(index);
+		} else if tn.find("dictionary<") = 0 {
+			newcontainer := any.newInstance(tn);
+			any key := new any;
+			sequence<any> args := [key, key];
+			for key in container.getKeys() {
+				args[0] := key;
+				any value := container.getEntry(key);
+				args[1] := value;
+				if <boolean> genericFunc(args) {
+					newcontainer.setEntry(key, value);
+				}
+			}
+		} else if tn = "com.apamax.functional.Generator" {
+			Generator input := <Generator> container;
+			newcontainer := Generator.create(new any, GenerateIf(input, genericFunc, [new any]).generate);
+		} else {
+			throw com.apama.exceptions.Exception("Can only filter over container or generator types", "typeException");
+		}	
+		return newcontainer;		
+	}
+	static action map(any container, any func) returns any
+	{
+		string tn := container.getTypeName();
+		any newcontainer := new any;
+		action<sequence<any>> returns any genericFunc := func.getGenericAction();
+		if tn.find("sequence<") = 0 {
+			newcontainer := any.newInstance("sequence<"+func.getActionReturnTypeName()+">");
+			action<integer> setsize := <action<integer>> newcontainer.getAction("setSize");
+			action<> returns integer getsize := <action<> returns integer> container.getAction("size");
+			setsize(getsize());
+			any value := new any;
+			integer index := 0;
+			sequence<any> args := [value];
+			for value in container.getEntries() {
+				args[0] := value;
+				newcontainer.setEntry(index, genericFunc(args));
+				index := index + 1;
+			}
+		} else if tn.find("dictionary<") = 0 {
+			newcontainer := any.newInstance("dictionary<"+func.getActionParameterTypeNames()[0]+","+func.getActionReturnTypeName()+">");
+			any key := new any;
+			sequence<any> args := [key, key];
+			for key in container.getKeys() {
+				args[0] := key;
+				args[1] := container.getEntry(key);
+				newcontainer.setEntry(key, genericFunc(args));
+			}
+		} else if tn = "com.apamax.functional.Generator" {
+			Generator input := <Generator> container;
+			newcontainer := Generator.create(new any, GenerateWrap(input, genericFunc, [new any]).generate);
+		} else {
+			throw com.apama.exceptions.Exception("Can only map over container or generator types", "typeException");
+		}	
+		return newcontainer;	
+	}
+	static action reduce(any container, any func) returns any
+	{
+		string tn := container.getTypeName();
+		any accumulator := any.newInstance(func.getActionReturnTypeName());
+		action<sequence<any>> returns any genericFunc := func.getGenericAction();
+		if tn.find("sequence<") = 0 {
+			any value := new any;
+			sequence<any> args := [accumulator, value];
+			for value in container.getEntries() {
+				args[0] := accumulator;
+				args[1] := value;
+				accumulator := genericFunc(args);			
+			}
+		} else if tn.find("dictionary<") = 0 {
+			any key := new any;
+			sequence<any> args := [accumulator, key, key];
+			for key in container.getKeys() {
+				args[0] := accumulator;
+				args[1] := key;
+				args[2] := container.getEntry(key);
+				accumulator := genericFunc(args);
+			}
+		} else {
+			throw com.apama.exceptions.Exception("Can only reduce over container or generator types", "typeException");
+		}	
+		return accumulator;	
+	}
+	static action slice(any container, integer start, integer end, integer stride) returns any
+	{
+		if start < 0 { throw com.apama.exceptions.Exception("Cannot start a slice at a negative number", "typeException"); }
+		if stride < 1 { throw com.apama.exceptions.Exception("Slice stride must be at least 1", "typeException"); }
+		
+		string tn := container.getTypeName();
+		any slice := new any;
+		if tn.find("sequence<") = 0 {
+			slice := any.newInstance(tn);
+			action<> returns integer getsize := <action<> returns integer> container.getAction("size");
+			integer size := getsize();
+			action<sequence<any>> returns any append := slice.getAction("append").getGenericAction();
+			sequence<any> args := [new any];
+			integer i := start;
+			end := integer.min(end, size);
+			if end < 0 { end := size; }
+			while i < end {
+				args[0] := container.getEntry(i);
+				any _ := append(args);
+				i := i + stride;
+			}
+		} else if tn = "com.apamax.functional.Generator" {
+			Generator g := <Generator> container;
+			any value := g.generate();
+			if slice.empty() {
+				slice := any.newInstance("sequence<"+value.getTypeName()+">");
+			}
+			action<sequence<any>> returns any append := slice.getAction("append").getGenericAction();
+			sequence<any> args := [new any];
+			integer i := 0;
+			while i < start { value := g.generate(); i := i + 1; }
+			while i < end {
+				args[0] := value;
+				any _ := append(args);
+				integer j := 0;
+				while j < stride { value := g.generate(); i := i + 1; j := j + 1; }
+			}
+		} else {
+			throw com.apama.exceptions.Exception("Can only slice sequence or generator", "typeException");
+		}
+		return slice;
+	}
+	static action generateFrom(any start, any func) returns Generator
+	{
+		return Generator.create(start, func);
+	}
+	static action generate(any func) returns Generator
+	{
+		return Generator.create(any.newInstance(func.getActionReturnTypeName()), func);
+	}
+	/** @private */
+	static action increment(integer i) returns integer { return i+1; }
+	static action count() returns Generator
+	{
+		return generateFrom(0, increment);
+	}
+}
+
