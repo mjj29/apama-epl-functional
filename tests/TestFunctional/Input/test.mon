@@ -83,6 +83,12 @@ monitor TestFunctional {
 		Asserts.assertEquals("zero map", "cow", g.generate());
 		Asserts.assertEquals("zero map", "cow", g.generate());
 
+		Asserts.assertEquals("range zero 1", [0,1,2,3,4], Functional.range(0, 5, 1));
+		Asserts.assertEquals("range positive 1", [7,8,9], Functional.range(7, 10, 1));
+		Asserts.assertEquals("range positive 3", [6,9,12], Functional.range(6, 13, 3));
+		Asserts.assertEquals("range negative 1", [-6, -5, -4], Functional.range(-6, -3, 1));
+		Asserts.assertEquals("range cross 2", [-4, -2, 0, 2, 4], Functional.range(-4, 6, 2));
+
 	}
 	action replaceWithCows(any a) returns string { return "cow"; }
 	action replaceValueWithCows(string k, any v) returns string { return "cow"; }

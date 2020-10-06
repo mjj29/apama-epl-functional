@@ -79,6 +79,11 @@
 <br>Takes either a sequence, a dictionary or a generator and maps the contents using a function.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;sequence&lt;integer&gt;</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#range()">range</A></B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
+<br>
+<br>Returns a range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#reduce()">reduce</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
 <br>
 <br>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.</TD>
@@ -174,6 +179,23 @@
 <B>Returns:</B>
 </DT>
 <DD>The container with all the values run through func.</DD>
+</DL>
+<HR>
+<A NAME="range()"></A>
+<H3>range</H3>
+<PRE>sequence&lt;integer&gt;&nbsp;static <B>range</B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</PRE>Returns a range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>start</tt>
+</DD>
+<DD>
+<tt>end</tt>
+</DD>
+<DD>
+<tt>stride</tt>
+</DD>
 </DL>
 <HR>
 <A NAME="reduce()"></A>

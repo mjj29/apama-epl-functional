@@ -318,5 +318,14 @@ event Functional
 	{
 		return generateFrom(-1, increment/* (integer i) -> i+1 */);
 	}
+
+	/**
+	  Returns a range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.
+	*/
+	static action range(integer start, integer end, integer stride) returns sequence<integer>
+	{
+		// better would be slice(generateFrom(start-1, (integer i)->i+stride), 0, (end-start)/stride, 1)
+		return <sequence<integer>> slice(generateFrom(start-1, increment), 0, end-start, stride);
+	}
 }
 
