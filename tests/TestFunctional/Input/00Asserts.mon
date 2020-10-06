@@ -18,7 +18,7 @@ event Asserts
 				}
 			}
 			default: {
-				return false;
+				return a = b;
 			}
 		}
 		return true;

@@ -7,7 +7,7 @@ class PySysTest(BaseTest):
 	def execute(self):
 		corr = CorrelatorHelper(self, name='correlator')
 		corr.start(logfile='correlator.log')
-		corr.injectEPL('../../../Stack.mon')
+		corr.injectEPL('../../../Functional.mon')
 		tests = os.listdir(self.input);
 		tests.sort()
 		for test in tests:

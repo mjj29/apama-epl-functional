@@ -11,14 +11,14 @@ event Generator
 		g.args := [g.accumulator];
 		return g;
 	}
-	
+
 	action generate() returns any
 	{
 		args[0] := accumulator;
 		accumulator := func(args);
 		return accumulator;
 	}
-	
+
 	/** @private */
 	any accumulator;
 	/** @private */
@@ -63,7 +63,7 @@ event GenerateWrap
 eg: Functional.slice(Functional.map(Functional.filter(Functional.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);
 
 */
-event Functional 
+event Functional
 {
 	static action filter(any container, any func) returns any
 	{
@@ -103,8 +103,8 @@ event Functional
 			newcontainer := Generator.create(new any, GenerateIf(input, genericFunc, [new any]).generate);
 		} else {
 			throw com.apama.exceptions.Exception("Can only filter over container or generator types", "typeException");
-		}	
-		return newcontainer;		
+		}
+		return newcontainer;
 	}
 	static action map(any container, any func) returns any
 	{
@@ -138,8 +138,8 @@ event Functional
 			newcontainer := Generator.create(new any, GenerateWrap(input, genericFunc, [new any]).generate);
 		} else {
 			throw com.apama.exceptions.Exception("Can only map over container or generator types", "typeException");
-		}	
-		return newcontainer;	
+		}
+		return newcontainer;
 	}
 	static action reduce(any container, any func) returns any
 	{
@@ -152,12 +152,14 @@ event Functional
 			for value in container.getEntries() {
 				args[0] := accumulator;
 				args[1] := value;
-				accumulator := genericFunc(args);			
+				accumulator := genericFunc(args);
 			}
 		} else if tn.find("dictionary<") = 0 {
 			any key := new any;
 			sequence<any> args := [accumulator, key, key];
-			for key in container.getKeys() {
+			sequence<any> keys := container.getKeys();
+			keys.sort();
+			for key in keys {
 				args[0] := accumulator;
 				args[1] := key;
 				args[2] := container.getEntry(key);
@@ -165,14 +167,14 @@ event Functional
 			}
 		} else {
 			throw com.apama.exceptions.Exception("Can only reduce over container or generator types", "typeException");
-		}	
-		return accumulator;	
+		}
+		return accumulator;
 	}
 	static action slice(any container, integer start, integer end, integer stride) returns any
 	{
 		if start < 0 { throw com.apama.exceptions.Exception("Cannot start a slice at a negative number", "typeException"); }
 		if stride < 1 { throw com.apama.exceptions.Exception("Slice stride must be at least 1", "typeException"); }
-		
+
 		string tn := container.getTypeName();
 		any slice := new any;
 		if tn.find("sequence<") = 0 {
