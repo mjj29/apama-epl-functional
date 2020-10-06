@@ -422,7 +422,9 @@ event Functional
 
 	/**
 	  Action for adding up a sequence or generator of integer, float or decimal using accumulate or reduce.
-	  */
+
+	  eg: <tt>integer sum := Functional.reduce(numbers, Functional.sum);</tt>
+	*/
 	static action sum(any acc, any i) returns any
 	{
 		switch (i) {
