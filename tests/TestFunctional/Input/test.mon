@@ -96,12 +96,25 @@ monitor TestFunctional {
 		Asserts.assertEquals("accumulate seq 2", 8., g.generate());
 		Asserts.assertEquals("accumulate seq 3", 15., g.generate());
 		Asserts.assertEquals("accumulate seq 4", 24., g.generate());
+
 		g := Functional.accumulate(Functional.count(), addup/* (integer a, integer i)->a+i */);
 		Asserts.assertEquals("accumulate gen 0", 0., g.generate());
 		Asserts.assertEquals("accumulate gen 1", 1., g.generate());
 		Asserts.assertEquals("accumulate gen 2", 3., g.generate());
 		Asserts.assertEquals("accumulate gen 3", 6., g.generate());
 		Asserts.assertEquals("accumulate gen 4", 10., g.generate());
+
+		Asserts.assertEquals("sum seq int", Functional.reduce([2,4,6], Functional.sum), 12);
+		Asserts.assertEquals("sum seq float", Functional.reduce([2.1,4.2,6.3], Functional.sum), 12.6);
+		Asserts.assertEquals("sum seq dec", Functional.reduce([2.3d,4.2d,6.1d], Functional.sum), 12.6d);
+
+		g := Functional.accumulate(Functional.count(), Functional.sum);
+		Asserts.assertEquals("accumulate gen 0", 0, g.generate());
+		Asserts.assertEquals("accumulate gen 1", 1, g.generate());
+		Asserts.assertEquals("accumulate gen 2", 3, g.generate());
+		Asserts.assertEquals("accumulate gen 3", 6, g.generate());
+		Asserts.assertEquals("accumulate gen 4", 10, g.generate());
+
 	}
 	action replaceWithCows(any a) returns string { return "cow"; }
 	action replaceValueWithCows(string k, any v) returns string { return "cow"; }

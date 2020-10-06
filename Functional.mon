@@ -419,5 +419,26 @@ event Functional
 	{
 		return Generator.create(new any, AccumulateGenerator.create(container, func).generate);
 	}
+
+	/**
+	  Action for adding up a sequence or generator of integer, float or decimal using accumulate or reduce.
+	  */
+	static action sum(any acc, any i) returns any
+	{
+		switch (i) {
+			case integer: {
+				if acc.empty() { acc := 0; }
+				return i+<integer> acc;
+			}
+			case float: {
+				if acc.empty() { acc := 0.; }
+				return i+<float> acc;
+			}
+			case decimal: {
+				if acc.empty() { acc := 0.d; }
+				return i+<decimal> acc;
+			}
+		}
+	}
 }
 
