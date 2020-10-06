@@ -45,7 +45,9 @@
 <H2>
 <FONT SIZE="-1">com.apamax.functional</FONT>
 <BR>Event Functional</H2>
-<HR>eg: Functional.slice(Functional.map(Functional.filter(Functional.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);<HR>
+<HR>Provides functional operations on EPL containers, such as map, reduce, filter and slice.<br>
+<br> Also provides generators which can be used as input to the functional operations.<br>
+<br> eg: <tt>Functional.slice(Functional.map(Functional.filter(Functional.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);</tt><HR>
 <A NAME="action_summary"></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
@@ -54,37 +56,37 @@
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#count()">count</A></B>()</CODE>
 <br>
-</TD>
+<br>Returns a generator producing sequential integers with the first one being 0.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;integer</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#filter()">filter</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
 <br>
-</TD>
+<br>Takes either a sequence, a dictionary or a generator and filters the contents using a boolean predicate func.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#generate()">generate</A></B>(any&nbsp;func)</CODE>
 <br>
-</TD>
+<br>Create a generator from a function, which is passed the previous value and should return the next value. The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#generateFrom()">generateFrom</A></B>(any&nbsp;start,&nbsp;any&nbsp;func)</CODE>
 <br>
-</TD>
+<br>Create a generator from a function, which is passed the previous value and should return the next value.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;integer</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#map()">map</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
 <br>
-</TD>
+<br>Takes either a sequence, a dictionary or a generator and maps the contents using a function.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#reduce()">reduce</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
 <br>
-</TD>
+<br>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#slice()">slice</A></B>(any&nbsp;container,&nbsp;integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
 <br>
-</TD>
+<br>Takes either a sequence or a generator and returns a given sub-range as a finite sequence. If it is passed a generator, it will invoke the generator sufficient times immediately to satisfy the slice.</TD>
 </TR>
 </TABLE>&nbsp;<A NAME="action_detail"></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -95,101 +97,126 @@
 <A NAME="count()"></A>
 <H3>count</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>count</B>()</PRE>
-<HR>
+<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>count</B>()</PRE>Returns a generator producing sequential integers with the first one being 0.<HR>
 <A NAME="filter()"></A>
 <H3>filter</H3>
-<PRE>integer&nbsp;static <B>filter</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>
-<DL>
+<PRE>integer&nbsp;static <B>filter</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence, a dictionary or a generator and filters the contents using a boolean predicate func.<br>
+<br> eg: <tt>Functional.filter(numbers, (integer i)->i%2=0)</tt><br>
+<br> Specifically, given: <ul> <li><tt>sequence&lt;TYPE&gt; container</tt> and <tt>action&lt;TYPE&gt; returns boolean func</tt> will return <tt>sequence&lt;TYPE&gt;</tt> containing all the elements for which <tt>func</tt> returned true.</li> <li><tt>dictionary&lt;KEYTYPE,VALUETYPE&gt; container</tt> and <tt>action&lt;KEYTYPE,VALUETYPE&gt; returns boolean func</tt> will return <tt>dictionary&lt;KEYTYPE,VALUETYPE&gt;</tt> containing all the elements for which <tt>func</tt> returned true.</li> <li>A generator returning <tt>TYPE</tt> and <tt>action&lt;TYPE&gt; returns boolean func</tt> will return a generator returning <tt>TYPE</tt> which only generates items from the original generator for which <tt>func</tt> returned true.</li> </ul><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
 <DD>
-<tt>container</tt>
-</DD>
+<tt>container</tt>&nbsp;-&nbsp;A sequence, dictionary or generator.</DD>
 <DD>
-<tt>func</tt>
-</DD>
+<tt>func</tt>&nbsp;-&nbsp;A boolean predicate function or lambda.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>The container filtered using the predicate function.</DD>
 </DL>
 <HR>
 <A NAME="generate()"></A>
 <H3>generate</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>generate</B>(any&nbsp;func)</PRE>
-<DL>
+<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>generate</B>(any&nbsp;func)</PRE>Create a generator from a function, which is passed the previous value and should return the next value. The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.<br>
+<br> eg: <tt>Functional.generate((integer i)->i+1)</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
 <DD>
-<tt>func</tt>
-</DD>
+<tt>func</tt>&nbsp;-&nbsp;An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>A generator for <tt>TYPE</tt>.</DD>
 </DL>
 <HR>
 <A NAME="generateFrom()"></A>
 <H3>generateFrom</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>generateFrom</B>(any&nbsp;start,&nbsp;any&nbsp;func)</PRE>
-<DL>
+<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>generateFrom</B>(any&nbsp;start,&nbsp;any&nbsp;func)</PRE>Create a generator from a function, which is passed the previous value and should return the next value.<br>
+<br> eg: <tt>Functional.generate(100, (integer i)->i+1)</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
 <DD>
-<tt>start</tt>
-</DD>
+<tt>start</tt>&nbsp;-&nbsp;The value to pass to func to generate the first generation.</DD>
 <DD>
-<tt>func</tt>
-</DD>
+<tt>func</tt>&nbsp;-&nbsp;An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>A generator for <tt>TYPE</tt>.</DD>
 </DL>
 <HR>
 <A NAME="map()"></A>
 <H3>map</H3>
-<PRE>integer&nbsp;static <B>map</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>
-<DL>
+<PRE>integer&nbsp;static <B>map</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence, a dictionary or a generator and maps the contents using a function.<br>
+<br> eg: <tt>Functional.map(numbers, (integer i)->i*2)</tt><br>
+<br> Specifically, given: <ul> <li><tt>sequence&lt;TYPEA&gt; container</tt> and <tt>action&lt;TYPEA&gt; returns TYPEB func</tt> will return <tt>sequence&lt;TYPEB&gt;</tt> containing the result of running <tt>func</tt> on all the elements in <tt>container</tt>.</li> <li><tt>dictionary&lt;KEYTYPE,VALUETYPEA&gt; container</tt> and <tt>action&lt;KEYTYPE,VALUETYPEA&gt; returns VALUETYPEB func</tt> will return <tt>dictionary&lt;KEYTYPE,VALUETYPEB&gt;</tt> containing the keys from <tt>container</tt> with the values being the result of running <tt>func</tt>.</li> <li>A generator returning <tt>TYPEA</tt> and <tt>action&lt;TYPEA&gt; returns TYPEB func</tt> will return a generator returning <tt>TYPEB</tt> where each item is the corresponding item from the original generator after running <tt>func</tt>.</li> </ul><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
 <DD>
-<tt>container</tt>
-</DD>
+<tt>container</tt>&nbsp;-&nbsp;A sequence, dictionary or generator.</DD>
 <DD>
-<tt>func</tt>
-</DD>
+<tt>func</tt>&nbsp;-&nbsp;A function or lambda from old value type to new value type.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>The container with all the values run through func.</DD>
 </DL>
 <HR>
 <A NAME="reduce()"></A>
 <H3>reduce</H3>
-<PRE>any&nbsp;static <B>reduce</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>
-<DL>
+<PRE>any&nbsp;static <B>reduce</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.<br>
+<br> eg: <tt>Functional.reduce(numbers, (integer a, integer i)->a+i)</tt><br>
+<br> Specifically, given: <ul> <li><tt>sequence&lt;TYPEA&gt; container</tt> and <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each value, retaining <tt>TYPEB</tt> each time.</li> <li><tt>dictionary&lt;KEYTYPE,VALUETYPE&gt; container</tt> and <tt>action&lt;TYPEB,KEYTYPE,VALUETYPE&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each key and value, retaining <tt>TYPEB</tt> each time.</li> </ul><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
 <DD>
-<tt>container</tt>
-</DD>
+<tt>container</tt>&nbsp;-&nbsp;A sequence or dictionary.</DD>
 <DD>
-<tt>func</tt>
-</DD>
+<tt>func</tt>&nbsp;-&nbsp;An accumulator function or lambda.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>The final result of the accumulator function.</DD>
 </DL>
 <HR>
 <A NAME="slice()"></A>
 <H3>slice</H3>
-<PRE>any&nbsp;static <B>slice</B>(any&nbsp;container,&nbsp;integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</PRE>
-<DL>
+<PRE>any&nbsp;static <B>slice</B>(any&nbsp;container,&nbsp;integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</PRE>Takes either a sequence or a generator and returns a given sub-range as a finite sequence. If it is passed a generator, it will invoke the generator sufficient times immediately to satisfy the slice.<br>
+<br> eg: <tt>Functional.slice(numbers, 5, 20, 2)</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
 <DD>
-<tt>container</tt>
-</DD>
+<tt>container</tt>&nbsp;-&nbsp;A <tt>sequence&lt;TYPE&gt;</tt> or generator which produces <tt>TYPE</tt>.</DD>
 <DD>
-<tt>start</tt>
-</DD>
+<tt>start</tt>&nbsp;-&nbsp;The first item to return.</DD>
 <DD>
-<tt>end</tt>
-</DD>
+<tt>end</tt>&nbsp;-&nbsp;The last item to return (-1 = all, only permitted for sequences).</DD>
 <DD>
-<tt>stride</tt>
-</DD>
+<tt>stride</tt>&nbsp;-&nbsp;The number of items to increment each time (1 = all).</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>A <tt>sequence&lt;TYPE&gt;</tt> containing the selected values from <tt>container</tt></DD>
 </DL>
 <HR>
 <HR>

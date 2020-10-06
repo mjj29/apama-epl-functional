@@ -1,5 +1,9 @@
 package com.apamax.functional;
 
+/**
+  Represents a generator over a function. This class is used internally by Fuctional, but you can use any event with a generate method.
+  Generate methods must take 0 arguments and can return the type of your choice (or any).
+ */
 event Generator
 {
 	/** @private */
@@ -12,6 +16,10 @@ event Generator
 		return g;
 	}
 
+	/**
+	  Returns the next item from this generator.
+	  @returns The next item.
+	*/
 	action generate() returns any
 	{
 		args[0] := accumulator;
@@ -62,11 +70,30 @@ event GenerateWrap
 
 /**
 
-eg: Functional.slice(Functional.map(Functional.filter(Functional.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);
+Provides functional operations on EPL containers, such as map, reduce, filter and slice.
+
+Also provides generators which can be used as input to the functional operations.
+
+eg: <tt>Functional.slice(Functional.map(Functional.filter(Functional.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);</tt>
 
 */
 event Functional
 {
+	/**
+	  Takes either a sequence, a dictionary or a generator and filters the contents using a boolean predicate func.
+
+	  eg: <tt>Functional.filter(numbers, (integer i)->i%2=0)</tt>
+
+	  Specifically, given:
+	  <ul>
+	  	<li><tt>sequence&lt;TYPE&gt; container</tt> and <tt>action&lt;TYPE&gt; returns boolean func</tt> will return <tt>sequence&lt;TYPE&gt;</tt> containing all the elements for which <tt>func</tt> returned true.</li>
+	  	<li><tt>dictionary&lt;KEYTYPE,VALUETYPE&gt; container</tt> and <tt>action&lt;KEYTYPE,VALUETYPE&gt; returns boolean func</tt> will return <tt>dictionary&lt;KEYTYPE,VALUETYPE&gt;</tt> containing all the elements for which <tt>func</tt> returned true.</li>
+	  	<li>A generator returning <tt>TYPE</tt> and <tt>action&lt;TYPE&gt; returns boolean func</tt> will return a generator returning <tt>TYPE</tt> which only generates items from the original generator for which <tt>func</tt> returned true.</li>
+	  </ul>
+	  @param container A sequence, dictionary or generator.
+	  @param func A boolean predicate function or lambda.
+	  @returns The container filtered using the predicate function.
+	*/
 	static action filter(any container, any func) returns any
 	{
 		string tn := container.getTypeName();
@@ -107,6 +134,22 @@ event Functional
 		}
 		return newcontainer;
 	}
+
+	/**
+	  Takes either a sequence, a dictionary or a generator and maps the contents using a function.
+
+	  eg: <tt>Functional.map(numbers, (integer i)->i*2)</tt>
+
+	  Specifically, given:
+	  <ul>
+	  	<li><tt>sequence&lt;TYPEA&gt; container</tt> and <tt>action&lt;TYPEA&gt; returns TYPEB func</tt> will return <tt>sequence&lt;TYPEB&gt;</tt> containing the result of running <tt>func</tt> on all the elements in <tt>container</tt>.</li>
+	  	<li><tt>dictionary&lt;KEYTYPE,VALUETYPEA&gt; container</tt> and <tt>action&lt;KEYTYPE,VALUETYPEA&gt; returns VALUETYPEB func</tt> will return <tt>dictionary&lt;KEYTYPE,VALUETYPEB&gt;</tt> containing the keys from <tt>container</tt> with the values being the result of running <tt>func</tt>.</li>
+	  	<li>A generator returning <tt>TYPEA</tt> and <tt>action&lt;TYPEA&gt; returns TYPEB func</tt> will return a generator returning <tt>TYPEB</tt> where each item is the corresponding item from the original generator after running <tt>func</tt>.</li>
+	  </ul>
+	  @param container A sequence, dictionary or generator.
+	  @param func A function or lambda from old value type to new value type.
+	  @returns The container with all the values run through func.
+	*/
 	static action map(any container, any func) returns any
 	{
 		string tn := container.getTypeName();
@@ -141,6 +184,21 @@ event Functional
 		}
 		return newcontainer;
 	}
+
+	/**
+	  Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.
+
+	  eg: <tt>Functional.reduce(numbers, (integer a, integer i)->a+i)</tt>
+
+	  Specifically, given:
+	  <ul>
+	  	<li><tt>sequence&lt;TYPEA&gt; container</tt> and <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each value, retaining <tt>TYPEB</tt> each time.</li>
+	  	<li><tt>dictionary&lt;KEYTYPE,VALUETYPE&gt; container</tt> and <tt>action&lt;TYPEB,KEYTYPE,VALUETYPE&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each key and value, retaining <tt>TYPEB</tt> each time.</li>
+	  </ul>
+	  @param container A sequence or dictionary.
+	  @param func An accumulator function or lambda.
+	  @returns The final result of the accumulator function.
+	*/
 	static action reduce(any container, any func) returns any
 	{
 		string tn := container.getTypeName();
@@ -170,10 +228,22 @@ event Functional
 		}
 		return accumulator;
 	}
+
+	/**
+	  Takes either a sequence or a generator and returns a given sub-range as a finite sequence. If it is passed a generator, it will invoke the generator sufficient times immediately to satisfy the slice.
+
+	  eg: <tt>Functional.slice(numbers, 5, 20, 2)</tt>
+
+	  @param container A <tt>sequence&lt;TYPE&gt;</tt> or generator which produces <tt>TYPE</tt>.
+	  @param start The first item to return.
+	  @param end The last item to return (-1 = all, only permitted for sequences).
+	  @param stride The number of items to increment each time (1 = all).
+	  @returns A <tt>sequence&lt;TYPE&gt;</tt> containing the selected values from <tt>container</tt>
+	*/
 	static action slice(any container, integer start, integer end, integer stride) returns any
 	{
-		if start < 0 { throw com.apama.exceptions.Exception("Cannot start a slice at a negative number", "typeException"); }
-		if stride < 1 { throw com.apama.exceptions.Exception("Slice stride must be at least 1", "typeException"); }
+		if start < 0 { throw com.apama.exceptions.Exception("Cannot start a slice at a negative number", "argumentException"); }
+		if stride < 1 { throw com.apama.exceptions.Exception("Slice stride must be at least 1", "argumentException"); }
 
 		string tn := container.getTypeName();
 		any slice := new any;
@@ -192,6 +262,7 @@ event Functional
 				i := i + stride;
 			}
 		} else if container.hasAction("generate") {
+			if end < 0 { throw com.apama.exceptions.Exception("Cannot end a slice of a generator at a negative number", "argumentException"); }
 			action<> returns any generate := <action<> returns any> container.getAction("generate");
 			any value := generate();
 			if slice.empty() {
@@ -212,19 +283,40 @@ event Functional
 		}
 		return slice;
 	}
-	static action generateFrom(any start, any func) returns Generator
-	{
-		return Generator.create(start, func);
-	}
+	/**
+	  Create a generator from a function, which is passed the previous value and should return the next value.
+	  The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.
+
+	  eg: <tt>Functional.generate((integer i)->i+1)</tt>
+
+	  @param func An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.
+	  @returns A generator for <tt>TYPE</tt>.
+	*/
 	static action generate(any func) returns Generator
 	{
 		return Generator.create(any.newInstance(func.getActionReturnTypeName()), func);
 	}
+	/**
+	  Create a generator from a function, which is passed the previous value and should return the next value.
+
+	  eg: <tt>Functional.generate(100, (integer i)->i+1)</tt>
+
+	  @param start The value to pass to func to generate the first generation.
+	  @param func An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.
+	  @returns A generator for <tt>TYPE</tt>.
+	*/
+	static action generateFrom(any start, any func) returns Generator
+	{
+		return Generator.create(start, func);
+	}
 	/** @private */
 	static action increment(integer i) returns integer { return i+1; }
+	/**
+	  Returns a generator producing sequential integers with the first one being 0.
+	*/
 	static action count() returns Generator
 	{
-		return generateFrom(0, increment);
+		return generateFrom(-1, increment/* (integer i) -> i+1 */);
 	}
 }
 

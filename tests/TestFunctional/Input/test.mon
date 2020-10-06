@@ -45,9 +45,9 @@ monitor TestFunctional {
 		Asserts.assertEquals("reduce dictionary", dstr, "a:2, b:4, c:5, ");
 
 		Generator g := Functional.count();
+		Asserts.assertEquals("generate 0", 0, g.generate());
 		Asserts.assertEquals("generate 1", 1, g.generate());
 		Asserts.assertEquals("generate 2", 2, g.generate());
-		Asserts.assertEquals("generate 3", 3, g.generate());
 
 		g := <Generator> Functional.filter(g, isEven/*(integer i)->i%2=0 */);
 		Asserts.assertEquals("generate filter 4", 4, g.generate());

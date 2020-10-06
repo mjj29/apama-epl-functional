@@ -3,7 +3,7 @@ Apama EPL Classes for functional operations
 
 ## Supported Apama version
 
-This works with Apama 10.5 or later, and probably most of the earlier ones as well
+This works with Apama 10.5 or later, and probably most of the earlier ones as well, although only later versions support lambdas. With previous versions you need to define explicit actions to use instead.
 
 ## Generators
 
