@@ -33,7 +33,7 @@ event GenerateIf
 	action generate(any _) returns any
 	{
 		while true {
-			any candidate := wrapped.generate();
+			any candidate := wrapped(wrappedargs);
 			args[0] := candidate;
 			if <boolean> predicate(args) {
 				return candidate;
@@ -41,8 +41,9 @@ event GenerateIf
 		}
 		return new any; // never happens
 	}
-	Generator wrapped;
+	action<sequence<any>> returns any wrapped;
 	action<sequence<any>> returns any predicate;
+	sequence<any> wrappedargs;
 	sequence<any> args;
 }
 /** @private */
@@ -50,11 +51,12 @@ event GenerateWrap
 {
 	action generate(any _) returns any
 	{
-		args[0] := wrapped.generate();
+		args[0] := wrapped(wrappedargs);
 		return func(args);
 	}
-	Generator wrapped;
+	action<sequence<any>> returns any wrapped;
 	action<sequence<any>> returns any func;
+	sequence<any> wrappedargs;
 	sequence<any> args;
 }
 
@@ -98,9 +100,8 @@ event Functional
 					newcontainer.setEntry(key, value);
 				}
 			}
-		} else if tn = "com.apamax.functional.Generator" {
-			Generator input := <Generator> container;
-			newcontainer := Generator.create(new any, GenerateIf(input, genericFunc, [new any]).generate);
+		} else if container.hasAction("generate") {
+			newcontainer := Generator.create(new any, GenerateIf(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any]).generate);
 		} else {
 			throw com.apama.exceptions.Exception("Can only filter over container or generator types", "typeException");
 		}
@@ -133,9 +134,8 @@ event Functional
 				args[1] := container.getEntry(key);
 				newcontainer.setEntry(key, genericFunc(args));
 			}
-		} else if tn = "com.apamax.functional.Generator" {
-			Generator input := <Generator> container;
-			newcontainer := Generator.create(new any, GenerateWrap(input, genericFunc, [new any]).generate);
+		} else if container.hasAction("generate") {
+			newcontainer := Generator.create(new any, GenerateWrap(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any]).generate);
 		} else {
 			throw com.apama.exceptions.Exception("Can only map over container or generator types", "typeException");
 		}
@@ -191,21 +191,21 @@ event Functional
 				any _ := append(args);
 				i := i + stride;
 			}
-		} else if tn = "com.apamax.functional.Generator" {
-			Generator g := <Generator> container;
-			any value := g.generate();
+		} else if container.hasAction("generate") {
+			action<> returns any generate := <action<> returns any> container.getAction("generate");
+			any value := generate();
 			if slice.empty() {
 				slice := any.newInstance("sequence<"+value.getTypeName()+">");
 			}
 			action<sequence<any>> returns any append := slice.getAction("append").getGenericAction();
 			sequence<any> args := [new any];
 			integer i := 0;
-			while i < start { value := g.generate(); i := i + 1; }
+			while i < start { value := generate(); i := i + 1; }
 			while i < end {
 				args[0] := value;
 				any _ := append(args);
 				integer j := 0;
-				while j < stride { value := g.generate(); i := i + 1; j := j + 1; }
+				while j < stride { value := generate(); i := i + 1; j := j + 1; }
 			}
 		} else {
 			throw com.apama.exceptions.Exception("Can only slice sequence or generator", "typeException");
