@@ -396,6 +396,16 @@ event Functional
 	{
 		return generateFrom(item, identity/* (any a)->a */);
 	}
+	/** TODO - loops iterations of seq forever 
+	static action cycle(any seq) returns Generator
+	{
+		//TODO
+	}*/
+	/** TODO - values are seq<any> sets of arguments to func 
+	static action argmap(any seq, any func) returns Generator
+	{
+		//TODO
+	}*/
 	/**
 	  Returns a sequence containing the given item the given number of times.
 	  @param item The element to put in the sequence.
@@ -442,5 +452,45 @@ event Functional
 			}
 		}
 	}
+	/** TODO 
+	static action mul(any acc, any i) returns any
+	{
+		//TODO
+	}*/
+	/** TODO 
+	static action conact(string acc, string i) returns string
+	{
+		//TODO
+	}*/
+	/** TODO 
+	static action even(integer i) returns boolean
+	{
+		//TODO
+	}*/
+	/** TODO 
+	static action odd(integer i) returns boolean
+	{
+		//TODO
+	}*/
+	/** TODO 
+	static action whole(any i) returns boolean
+	{
+		//TODO
+	}*/
+	/** TODO 
+	static action positive(any i) returns boolean
+	{
+		//TODO
+	}*/
+	/** TODO 
+	static action negative(any i) returns boolean
+	{
+		//TODO
+	}*/
+	/** TODO - return a functor which will pass the given arguments, followed by the actual arguments, for partially evaluated functions 
+	static action partial(any func, sequence<any> args) returns ...
+	{
+		//TODO
+	}*/
 }
 
