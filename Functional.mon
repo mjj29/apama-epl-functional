@@ -309,6 +309,7 @@ event Functional
 	{
 		return Generator.create(start, func);
 	}
+
 	/** @private */
 	static action increment(integer i) returns integer { return i+1; }
 	/**
@@ -326,6 +327,28 @@ event Functional
 	{
 		// better would be slice(generateFrom(start-1, (integer i)->i+stride), 0, (end-start)/stride, 1)
 		return <sequence<integer>> slice(generateFrom(start-1, increment), 0, end-start, stride);
+	}
+
+	/** @private */
+	static action identity(any a) returns any { return a; }
+	/**
+	  Repeats the given element forever.
+	  @param item The item to return.
+	  @returns A generator which returns item over and over again.
+	*/
+      	static action repeat(any item) returns Generator
+	{
+		return generateFrom(item, identity/* (any a)->a */);
+	}
+	/**
+	  Returns a sequence containing the given item the given number of times.
+	  @param item The element to put in the sequence.
+	  @param n The number of times to repeat the element.
+	  @returns A <tt>sequence&lt;ITEMTYPE&gt;</tt> with <tt>n</tt> <tt>item</tt>s in it.
+	*/
+	static action sequenceOf(any item, integer n) returns any
+	{
+		return slice(repeat(item), 0, n, 1);
 	}
 }
 

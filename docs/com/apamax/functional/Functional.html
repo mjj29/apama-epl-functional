@@ -89,6 +89,16 @@
 <br>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#repeat()">repeat</A></B>(any&nbsp;item)</CODE>
+<br>
+<br>Repeats the given element forever.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#sequenceOf()">sequenceOf</A></B>(any&nbsp;item,&nbsp;integer&nbsp;n)</CODE>
+<br>
+<br>Returns a sequence containing the given item the given number of times.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#slice()">slice</A></B>(any&nbsp;container,&nbsp;integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
 <br>
 <br>Takes either a sequence or a generator and returns a given sub-range as a finite sequence. If it is passed a generator, it will invoke the generator sufficient times immediately to satisfy the slice.</TD>
@@ -216,6 +226,41 @@
 <B>Returns:</B>
 </DT>
 <DD>The final result of the accumulator function.</DD>
+</DL>
+<HR>
+<A NAME="repeat()"></A>
+<H3>repeat</H3>
+<PRE>
+<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>repeat</B>(any&nbsp;item)</PRE>Repeats the given element forever.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>item</tt>&nbsp;-&nbsp;The item to return.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>A generator which returns item over and over again.</DD>
+</DL>
+<HR>
+<A NAME="sequenceOf()"></A>
+<H3>sequenceOf</H3>
+<PRE>any&nbsp;static <B>sequenceOf</B>(any&nbsp;item,&nbsp;integer&nbsp;n)</PRE>Returns a sequence containing the given item the given number of times.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>item</tt>&nbsp;-&nbsp;The element to put in the sequence.</DD>
+<DD>
+<tt>n</tt>&nbsp;-&nbsp;The number of times to repeat the element.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>A <tt>sequence&lt;ITEMTYPE&gt;</tt> with <tt>n</tt> <tt>item</tt>s in it.</DD>
 </DL>
 <HR>
 <A NAME="slice()"></A>

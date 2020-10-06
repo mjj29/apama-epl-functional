@@ -89,6 +89,8 @@ monitor TestFunctional {
 		Asserts.assertEquals("range negative 1", [-6, -5, -4], Functional.range(-6, -3, 1));
 		Asserts.assertEquals("range cross 2", [-4, -2, 0, 2, 4], Functional.range(-4, 6, 2));
 
+		Asserts.assertEquals("sequenceOf", ["cow", "cow", "cow"], Functional.sequenceOf("cow", 3));
+
 	}
 	action replaceWithCows(any a) returns string { return "cow"; }
 	action replaceValueWithCows(string k, any v) returns string { return "cow"; }
