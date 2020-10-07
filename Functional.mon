@@ -130,15 +130,20 @@ Provides functional operations on EPL containers, such as map, reduce, filter an
 
 Also provides generators which can be used as input to the functional operations.
 
-eg: <tt>Functional.slice(Functional.map(Functional.filter(Functional.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);</tt>
+eg: <tt>Fn.slice(Fn.map(Fn.filter(Fn.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);</tt>
 
 */
-event Functional
+event Fn
 {
+
+/* TODO: 
+ - make key the last param for dictionary functors and optional via introspection
+ - reduce with optional inital value
+*/
 	/**
 	  Takes either a sequence, a dictionary or a generator and filters the contents using a boolean predicate func.
 
-	  eg: <tt>Functional.filter(numbers, (integer i)->i%2=0)</tt>
+	  eg: <tt>Fn.filter(numbers, (integer i)->i%2=0)</tt>
 
 	  Specifically, given:
 	  <ul>
@@ -194,7 +199,7 @@ event Functional
 	/**
 	  Takes either a sequence, a dictionary or a generator and maps the contents using a function.
 
-	  eg: <tt>Functional.map(numbers, (integer i)->i*2)</tt>
+	  eg: <tt>Fn.map(numbers, (integer i)->i*2)</tt>
 
 	  Specifically, given:
 	  <ul>
@@ -244,7 +249,7 @@ event Functional
 	/**
 	  Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.
 
-	  eg: <tt>Functional.reduce(numbers, (integer a, integer i)->a+i)</tt>
+	  eg: <tt>Fn.reduce(numbers, (integer a, integer i)->a+i)</tt>
 
 	  Specifically, given:
 	  <ul>
@@ -288,7 +293,7 @@ event Functional
 	/**
 	  Takes either a sequence or a generator and returns a given sub-range as a finite sequence. If it is passed a generator, it will invoke the generator sufficient times immediately to satisfy the slice.
 
-	  eg: <tt>Functional.slice(numbers, 5, 20, 2)</tt>
+	  eg: <tt>Fn.slice(numbers, 5, 20, 2)</tt>
 
 	  @param container A <tt>sequence&lt;TYPE&gt;</tt> or generator which produces <tt>TYPE</tt>.
 	  @param start The first item to return.
@@ -343,7 +348,7 @@ event Functional
 	  Create a generator from a function, which is passed the previous value and should return the next value.
 	  The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.
 
-	  eg: <tt>Functional.generate((integer i)->i+1)</tt>
+	  eg: <tt>Fn.generate((integer i)->i+1)</tt>
 
 	  @param func An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.
 	  @returns A generator for <tt>TYPE</tt>.
@@ -355,7 +360,7 @@ event Functional
 	/**
 	  Create a generator from a function, which is passed the previous value and should return the next value.
 
-	  eg: <tt>Functional.generate(100, (integer i)->i+1)</tt>
+	  eg: <tt>Fn.generate(100, (integer i)->i+1)</tt>
 
 	  @param start The value to pass to func to generate the first generation.
 	  @param func An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.
@@ -433,7 +438,7 @@ event Functional
 	/**
 	  Action for adding up a sequence or generator of integer, float or decimal using accumulate or reduce.
 
-	  eg: <tt>integer sum := Functional.reduce(numbers, Functional.sum);</tt>
+	  eg: <tt>integer sum := Fn.reduce(numbers, Fn.sum);</tt>
 	*/
 	static action sum(any acc, any i) returns any
 	{
@@ -455,7 +460,7 @@ event Functional
 	/**
 	  Action for multiplying together the values in a sequence or generator of integer, float or decimal using accumulate or reduce.
 
-	  eg: <tt>integer product := Functional.reduce(numbers, Functional.mul);</tt>
+	  eg: <tt>integer product := Fn.reduce(numbers, Fn.mul);</tt>
 	*/
 	static action mul(any acc, any i) returns any
 	{

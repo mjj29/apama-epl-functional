@@ -1,9 +1,9 @@
 package com.apamax.test;
-using com.apamax.functional.Functional;
+using com.apamax.functional.Fn;
 using com.apamax.functional.Generator;
 
 /** This monitor is responsible for ...  */
-monitor TestFunctional {
+monitor TestFn {
 
 	event Zeros
 	{
@@ -29,67 +29,67 @@ monitor TestFunctional {
 	action testmap()
 	{
 		sequence<string> s := ["Hello World", "Foo bar"];
-		s := <sequence<string>> Functional.map(s, replaceWithCows/* (any a) -> "cow" */);
+		s := <sequence<string>> Fn.map(s, replaceWithCows/* (any a) -> "cow" */);
 		Asserts.assertEquals("map sequence string", s, ["cow", "cow"]);
 
 		sequence<integer> s2 := [1, 2, 3];
-		s := <sequence<string>> Functional.map(s2, replaceWithCows/* (any a) -> "cow" */);
+		s := <sequence<string>> Fn.map(s2, replaceWithCows/* (any a) -> "cow" */);
 		Asserts.assertEquals("map sequence integer", s, ["cow", "cow", "cow"]);
 
 		dictionary<string, integer> d2 := {"Hello world":1, "Foo":2};
-		dictionary<string, string> d := <dictionary<string, string>> Functional.map(d2, replaceValueWithCows/* (string k, any v) -> "cow" */);
+		dictionary<string, string> d := <dictionary<string, string>> Fn.map(d2, replaceValueWithCows/* (string k, any v) -> "cow" */);
 		Asserts.assertEquals("map dictionary", d, {"Hello world":"cow", "Foo":"cow"});
 	}
 	action testfilter()
 	{
 		sequence<string> s := ["cow", "notacow", "cow", "cow", "notacow"];
-		s := <sequence<string>> Functional.filter(s, checkForCow/* (string s) -> s="cow" */);
+		s := <sequence<string>> Fn.filter(s, checkForCow/* (string s) -> s="cow" */);
 		Asserts.assertEquals("filter sequence", s, ["cow", "cow", "cow"]);
 
 		dictionary<string, string> d := {"Hello world":"cow", "Foo":"cow", "baz":"quux", "to be or":"not to be"};
-		d := <dictionary<string, string>> Functional.filter(d, checkValueForCow/* (string k, string v) -> v="cow" */);
+		d := <dictionary<string, string>> Fn.filter(d, checkValueForCow/* (string k, string v) -> v="cow" */);
 		Asserts.assertEquals("filter dictionary", d, {"Hello world":"cow", "Foo":"cow"});
 	}
 	action testreduce()
 	{
 		sequence<integer> si := [1,3,5,7,9];
-		float sum := <float> Functional.reduce(si, addup/* (float a, integer v) -> acc+v.toFloat() */);
+		float sum := <float> Fn.reduce(si, addup/* (float a, integer v) -> acc+v.toFloat() */);
 		Asserts.assertEquals("reduce sequence", sum, 25.);
 
 		dictionary<string, integer> dsi := {"a":2, "b":4, "c":5};
-		string dstr := <string> Functional.reduce(dsi, stringify/* (string a, string k, integer v) -> acc+k+":"+v.toString()+", " */);
+		string dstr := <string> Fn.reduce(dsi, stringify/* (string a, string k, integer v) -> acc+k+":"+v.toString()+", " */);
 		Asserts.assertEquals("reduce dictionary", dstr, "a:2, b:4, c:5, ");
 	}
 	action testgenerators()
 	{
-		Generator g := Functional.count();
+		Generator g := Fn.count();
 		Asserts.assertEquals("generate 0", 0, g.generate());
 		Asserts.assertEquals("generate 1", 1, g.generate());
 		Asserts.assertEquals("generate 2", 2, g.generate());
 
-		g := <Generator> Functional.filter(g, isEven/*(integer i)->i%2=0 */);
+		g := <Generator> Fn.filter(g, isEven/*(integer i)->i%2=0 */);
 		Asserts.assertEquals("generate filter 4", 4, g.generate());
 		Asserts.assertEquals("generate filter 6", 6, g.generate());
 		Asserts.assertEquals("generate filter 8", 8, g.generate());
 
-		g := <Generator> Functional.map(g, double/* (integer i)->i*2 */);
+		g := <Generator> Fn.map(g, double/* (integer i)->i*2 */);
 		Asserts.assertEquals("generate map 20", 20, g.generate());
 		Asserts.assertEquals("generate map 24", 24, g.generate());
 		Asserts.assertEquals("generate map 28", 28, g.generate());
 
-		g := Functional.generate(addCow/* (string s) -> s+"cow" */);
+		g := Fn.generate(addCow/* (string s) -> s+"cow" */);
 		Asserts.assertEquals("generate cow", "cow", g.generate());
 		Asserts.assertEquals("generate cowcow", "cowcow", g.generate());
 		Asserts.assertEquals("generate cowcowcow", "cowcowcow", g.generate());
 
-		g := <Generator> Functional.map(g, countCows);
+		g := <Generator> Fn.map(g, countCows);
 		Asserts.assertEquals("generate cow map 4", 4, g.generate());
 		Asserts.assertEquals("generate cow map 5", 5, g.generate());
 		Asserts.assertEquals("generate cow map 6", 6, g.generate());
 
-		sequence<integer> ncows := <sequence<integer>> Functional.slice(g, 1, 5, 2);
+		sequence<integer> ncows := <sequence<integer>> Fn.slice(g, 1, 5, 2);
 		Asserts.assertEquals("generate slice", ncows,  [8, 10]);
-		sequence<string> ss := <sequence<string>> Functional.slice(["a", "b", "c", "d", "e", "f", "g"], 2, -1, 3);
+		sequence<string> ss := <sequence<string>> Fn.slice(["a", "b", "c", "d", "e", "f", "g"], 2, -1, 3);
 		Asserts.assertEquals("sequence slice", ss, ["c", "f"]);
 	}
 	action testcustom()
@@ -98,31 +98,31 @@ monitor TestFunctional {
 		Asserts.assertEquals("zeros", 0, z.generate());
 		Asserts.assertEquals("zeros", 0, z.generate());
 		Asserts.assertEquals("zeros", 0, z.generate());
-		Generator g := <Generator> Functional.map(z, replaceWithCows);
+		Generator g := <Generator> Fn.map(z, replaceWithCows);
 		Asserts.assertEquals("zero map", "cow", g.generate());
 		Asserts.assertEquals("zero map", "cow", g.generate());
 		Asserts.assertEquals("zero map", "cow", g.generate());
 	}
 	action testrange() {
-		Asserts.assertEquals("range zero 1", [0,1,2,3,4], Functional.range(0, 5, 1));
-		Asserts.assertEquals("range positive 1", [7,8,9], Functional.range(7, 10, 1));
-		Asserts.assertEquals("range positive 3", [6,9,12], Functional.range(6, 13, 3));
-		Asserts.assertEquals("range negative 1", [-6, -5, -4], Functional.range(-6, -3, 1));
-		Asserts.assertEquals("range cross 2", [-4, -2, 0, 2, 4], Functional.range(-4, 6, 2));
+		Asserts.assertEquals("range zero 1", [0,1,2,3,4], Fn.range(0, 5, 1));
+		Asserts.assertEquals("range positive 1", [7,8,9], Fn.range(7, 10, 1));
+		Asserts.assertEquals("range positive 3", [6,9,12], Fn.range(6, 13, 3));
+		Asserts.assertEquals("range negative 1", [-6, -5, -4], Fn.range(-6, -3, 1));
+		Asserts.assertEquals("range cross 2", [-4, -2, 0, 2, 4], Fn.range(-4, 6, 2));
 	}
 	action testsequenceof()
 	{
-		Asserts.assertEquals("sequenceOf", ["cow", "cow", "cow"], Functional.sequenceOf("cow", 3));
+		Asserts.assertEquals("sequenceOf", ["cow", "cow", "cow"], Fn.sequenceOf("cow", 3));
 	}
 	action testaccumulate()
 	{
-		Generator g := Functional.accumulate([3,5,7,9], addup/* (integer a, integer i)->a+i */);
+		Generator g := Fn.accumulate([3,5,7,9], addup/* (integer a, integer i)->a+i */);
 		Asserts.assertEquals("accumulate seq 1", 3., g.generate());
 		Asserts.assertEquals("accumulate seq 2", 8., g.generate());
 		Asserts.assertEquals("accumulate seq 3", 15., g.generate());
 		Asserts.assertEquals("accumulate seq 4", 24., g.generate());
 
-		g := Functional.accumulate(Functional.count(), addup/* (integer a, integer i)->a+i */);
+		g := Fn.accumulate(Fn.count(), addup/* (integer a, integer i)->a+i */);
 		Asserts.assertEquals("accumulate gen 0", 0., g.generate());
 		Asserts.assertEquals("accumulate gen 1", 1., g.generate());
 		Asserts.assertEquals("accumulate gen 2", 3., g.generate());
@@ -131,11 +131,11 @@ monitor TestFunctional {
 	}
 	action testsum()
 	{
-		Asserts.assertEquals("sum seq int", Functional.reduce([2,4,6], Functional.sum), 12);
-		Asserts.assertEquals("sum seq float", Functional.reduce([2.1,4.2,6.3], Functional.sum), 12.6);
-		Asserts.assertEquals("sum seq dec", Functional.reduce([2.3d,4.2d,6.1d], Functional.sum), 12.6d);
+		Asserts.assertEquals("sum seq int", Fn.reduce([2,4,6], Fn.sum), 12);
+		Asserts.assertEquals("sum seq float", Fn.reduce([2.1,4.2,6.3], Fn.sum), 12.6);
+		Asserts.assertEquals("sum seq dec", Fn.reduce([2.3d,4.2d,6.1d], Fn.sum), 12.6d);
 
-		Generator g := Functional.accumulate(Functional.count(), Functional.sum);
+		Generator g := Fn.accumulate(Fn.count(), Fn.sum);
 		Asserts.assertEquals("sum gen 0", 0, g.generate());
 		Asserts.assertEquals("sum gen 1", 1, g.generate());
 		Asserts.assertEquals("sum gen 2", 3, g.generate());
@@ -144,13 +144,13 @@ monitor TestFunctional {
 	}
 	action testmul()
 	{
-		Asserts.assertEquals("mul seq int", Functional.reduce([2,4,6], Functional.mul), 48);
-		Asserts.assertEquals("mul seq float", Functional.reduce([2.1,4.2,6.3], Functional.mul), 55.566);
-		Asserts.assertEquals("mul seq dec", Functional.reduce([2.3d,4.2d,6.1d], Functional.mul), 58.926d);
+		Asserts.assertEquals("mul seq int", Fn.reduce([2,4,6], Fn.mul), 48);
+		Asserts.assertEquals("mul seq float", Fn.reduce([2.1,4.2,6.3], Fn.mul), 55.566);
+		Asserts.assertEquals("mul seq dec", Fn.reduce([2.3d,4.2d,6.1d], Fn.mul), 58.926d);
 
-		Generator g := Functional.count();
+		Generator g := Fn.count();
 		any _ := g.generate();
-		g := Functional.accumulate(g, Functional.mul);
+		g := Fn.accumulate(g, Fn.mul);
 		Asserts.assertEquals("mul gen 0", 1, g.generate());
 		Asserts.assertEquals("mul gen 1", 2, g.generate());
 		Asserts.assertEquals("mul gen 2", 6, g.generate());
@@ -159,23 +159,23 @@ monitor TestFunctional {
 	}
 	action testconcat()
 	{
-		Asserts.assertEquals("concat seq str", Functional.reduce(["A","B","C"], Functional.concat), "ABC");
+		Asserts.assertEquals("concat seq str", Fn.reduce(["A","B","C"], Fn.concat), "ABC");
 
-		Generator g := Functional.accumulate(Functional.repeat("A"), Functional.concat);
+		Generator g := Fn.accumulate(Fn.repeat("A"), Fn.concat);
 		Asserts.assertEquals("mul gen A", "A", g.generate());
 		Asserts.assertEquals("mul gen AA", "AA", g.generate());
 		Asserts.assertEquals("mul gen AAA", "AAA", g.generate());
 	}
 	action testeven()
 	{
-		Asserts.assertEquals("even seq", Functional.filter([1,2,3,4,5,6], Functional.even), [2,4,6]);
-		Asserts.assertEquals("even seq", Functional.filter([1,2,3,4,5,6], Functional.odd), [1,3,5]);
+		Asserts.assertEquals("even seq", Fn.filter([1,2,3,4,5,6], Fn.even), [2,4,6]);
+		Asserts.assertEquals("even seq", Fn.filter([1,2,3,4,5,6], Fn.odd), [1,3,5]);
 		
-		Generator g := <Generator> Functional.filter(Functional.count(), Functional.even);
+		Generator g := <Generator> Fn.filter(Fn.count(), Fn.even);
 		Asserts.assertEquals("even gen 1", 0, g.generate());
 		Asserts.assertEquals("even gen 2", 2, g.generate());
 		Asserts.assertEquals("even gen 3", 4, g.generate());
-		g := <Generator> Functional.filter(Functional.count(), Functional.odd);
+		g := <Generator> Fn.filter(Fn.count(), Fn.odd);
 		Asserts.assertEquals("even gen 1", 1, g.generate());
 		Asserts.assertEquals("even gen 2", 3, g.generate());
 		Asserts.assertEquals("even gen 3", 5, g.generate());
