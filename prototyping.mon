@@ -1,0 +1,63 @@
+using com.apamax.functional.Fn;
+using com.apamax.functional.Generator;
+using com.apamax.functional.Util;
+event Partial
+{
+	static action create(any arguments, any func) returns Partial
+	{
+		Partial p := new Partial;
+		p.args := new sequence<any>;
+		// TODO: work out how to put arguments into p.args
+		p.curriedArgs := p.args.size();
+		p.func := Util.getGenericAction(func);
+	
+		return p;
+	}
+	action execute(sequence<any> args) returns any
+	{
+		integer targetArgs := curriedArgs+args.size();
+		if (self.args.size() != targetArgs) {
+			self.args.setSize(targetArgs);
+		}
+		integer i := curriedArgs;
+		any a;
+		for a in args {
+			self.args[i] := a;
+			i := i + 1;
+		}
+		
+		return func(self.args);
+	}
+	sequence<any> args;
+	integer curriedArgs;
+	action<sequence<any>> returns any func;
+	
+}
+
+monitor m
+{
+	action increment(integer offs, integer i) returns integer { return i+offs; }
+	action foo(integer i, integer j, integer k, integer l) 
+	{
+		log "i:"+i.toString()+" j:"+j.toString()+" k:"+k.toString()+" l:"+l.toString();
+	}
+	action partial(any args, any func) returns action<sequence<any>> returns any
+	{
+		return Partial.create(args, func).execute;
+	}
+	action onload()
+	{
+		foo(1,2,3,4);
+		any _ := partial([<any>1], foo)([<any>2,3,4]);
+		_ := partial([<any>1,2], foo)([<any>3,4]);
+		_ := partial([<any>1,2,3], foo)([<any>4]);
+		_ := partial([<any>1,2,3,4], foo)(new sequence<any>);
+		_ := partial([<any>2], partial([<any>1], foo))([<any>3,4]);
+		
+		Generator g := Fn.generateFrom(0, partial(2, increment));
+		log g.generate().valueToString();
+		log g.generate().valueToString();
+		log g.generate().valueToString();
+		log g.generate().valueToString();
+	}
+}
