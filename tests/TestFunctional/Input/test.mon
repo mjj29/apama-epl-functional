@@ -25,6 +25,9 @@ monitor TestFn {
 		testmul();
 		testconcat();
 		testeven();
+		testcycle();
+		testfloatpredicates();
+		testargmap();
 	}
 	action testmap()
 	{
@@ -166,6 +169,15 @@ monitor TestFn {
 		Asserts.assertEquals("mul gen AA", "AA", g.generate());
 		Asserts.assertEquals("mul gen AAA", "AAA", g.generate());
 	}
+	action testcycle()
+	{
+		Generator g := Fn.cycle([1,2,3]);
+		Asserts.assertEquals("cycle 1", 1, g.generate());
+		Asserts.assertEquals("cycle 2", 2, g.generate());
+		Asserts.assertEquals("cycle 3", 3, g.generate());
+		Asserts.assertEquals("cycle 4", 1, g.generate());
+		Asserts.assertEquals("cycle 5", 2, g.generate());
+	}
 	action testeven()
 	{
 		Asserts.assertEquals("even seq", Fn.filter([1,2,3,4,5,6], Fn.even), [2,4,6]);
@@ -179,6 +191,31 @@ monitor TestFn {
 		Asserts.assertEquals("even gen 1", 1, g.generate());
 		Asserts.assertEquals("even gen 2", 3, g.generate());
 		Asserts.assertEquals("even gen 3", 5, g.generate());
+	}
+	action testfloatpredicates()
+	{
+		Asserts.assertEquals("positive int", Fn.filter([-2,1,0,-1,2], Fn.positive), [1,2]);
+		Asserts.assertEquals("positive float", Fn.filter([-float.INFINITY,-2.1,0.,1.2,-1.3,2.4,float.PI,float.INFINITY], Fn.positive), [1.2,2.4,float.PI,float.INFINITY]);
+		Asserts.assertEquals("positive decimal", Fn.filter([-decimal.INFINITY,-2.1d,0.d,1.2d,-1.3d,2.4d,decimal.PI,decimal.INFINITY], Fn.positive), [1.2d,2.4d,decimal.PI,decimal.INFINITY]);
+
+		Asserts.assertEquals("not negative int", Fn.filter([-2,1,0,-1,2], Fn._not(Fn.negative)), [1,0,2]);
+		Asserts.assertEquals("not negative float", Fn.filter([-float.INFINITY,-2.1,1.2,0.,-1.3,2.4,float.PI,float.INFINITY], Fn._not(Fn.negative)), [1.2,0.,2.4,float.PI,float.INFINITY]);
+		Asserts.assertEquals("not negative decimal", Fn.filter([-decimal.INFINITY,-2.1d,1.2d,0.d,-1.3d,2.4d,decimal.PI,decimal.INFINITY], Fn._not(Fn.negative)), [1.2d,0.d,2.4d,decimal.PI,decimal.INFINITY]);
+
+		Asserts.assertEquals("negative int", Fn.filter([-2,1,0,-1,2], Fn.negative), [-2,-1]);
+		Asserts.assertEquals("negative float", Fn.filter([-float.INFINITY,-2.1,1.2,0.,-1.3,2.4,float.PI,float.INFINITY], Fn.negative), [-float.INFINITY,-2.1,-1.3]);
+		Asserts.assertEquals("negative decimal", Fn.filter([-decimal.INFINITY,-2.1d,1.2d,0.d,-1.3d,2.4d,decimal.PI,decimal.INFINITY], Fn.negative), [-decimal.INFINITY,-2.1d,-1.3d]);
+
+		Asserts.assertEquals("whole int", Fn.filter([0,-1,2], Fn.whole), [0,-1,2]);
+		Asserts.assertEquals("whole float", Fn.filter([0.,-1.,0.5,float.E], Fn.whole), [0.,-1.]);
+		Asserts.assertEquals("whole decimal", Fn.filter([0.d,-1.d,0.5d,decimal.E], Fn.whole), [0.d,-1.d]);
+	}
+
+	action testargmap()
+	{
+		Asserts.assertEquals("argmap single seq", Fn.slice(Fn.argmap([0,1,2], double), 0, 3, 1), [0,2,4]);
+		Asserts.assertEquals("argmap single gen", Fn.slice(Fn.argmap(Fn.count(), double), 0, 3, 1), [0,2,4]);
+		Asserts.assertEquals("argmap multiple seq", Fn.slice(Fn.argmap([[<any>1.,2],[<any>3.,4],[<any>5.,6]], addup), 0, 3, 1), [3.,7.,11.]);
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }
