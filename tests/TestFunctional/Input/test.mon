@@ -1,6 +1,7 @@
 package com.apamax.test;
 using com.apamax.functional.Fn;
 using com.apamax.functional.Generator;
+using com.apamax.functional.Util;
 
 /** This monitor is responsible for ...  */
 monitor TestFn {
@@ -25,6 +26,7 @@ monitor TestFn {
 		testmul();
 		testconcat();
 		testeven();
+		testutil();
 	}
 	action testmap()
 	{
@@ -179,6 +181,16 @@ monitor TestFn {
 		Asserts.assertEquals("even gen 1", 1, g.generate());
 		Asserts.assertEquals("even gen 2", 3, g.generate());
 		Asserts.assertEquals("even gen 3", 5, g.generate());
+	}
+
+	action testutil()
+	{
+		Asserts.assertEquals("ggs 1", "[any(integer,1)]", Util.getGenericSequence(1).toString());
+		Asserts.assertEquals("ggs 2", "[any(integer,1)]", Util.getGenericSequence([1]).toString());
+		Asserts.assertEquals("ggs 3", "[any(integer,1)]", Util.getGenericSequence([<any>1]).toString());
+		Asserts.assertEquals("ggs 4", "[any(integer,1),any(string,\"hello\")]", Util.getGenericSequence([<any>1,"hello"]).toString());
+		Asserts.assertEquals("ggs 5", "[any(integer,1),any(integer,2)]", Util.getGenericSequence([1,2]).toString());
+		Asserts.assertEquals("ggs 6", "[any(float,1),any(integer,2),any(sequence<any>,[any(integer,3)])]", Util.getGenericSequence([<any>1.,2,[<any>3]]).toString());
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }
