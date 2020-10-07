@@ -1,5 +1,21 @@
 package com.apamax.functional;
 
+/** @private */
+event Util
+{
+	static action getGenericAction(any func) returns action<sequence<any>> returns any
+	{
+		switch (func) {
+			case action<sequence<any>> returns any: {
+				return func;
+			}
+			default: {
+				return func.getGenericAction();
+			}
+		}
+	}
+}
+
 /**
   Represents a generator over a function. This class is used internally by Fuctional, but you can use any event with a generate method.
   Generate methods must take 0 arguments and can return the type of your choice (or any).
@@ -11,7 +27,7 @@ event Generator
 	{
 		Generator g := new Generator;
 		g.accumulator := start;
-		g.func := func.getGenericAction();
+		g.func := Util.getGenericAction(func);
 		g.args := [g.accumulator];
 		return g;
 	}
@@ -75,7 +91,7 @@ event AccumulateGenerator
 	{
 		AccumulateGenerator ag := new AccumulateGenerator;
 		ag.container := container;
-		ag.func := func.getGenericAction();
+		ag.func := Util.getGenericAction(func);
 
 		string tn := container.getTypeName();
 		if tn.find("sequence<") = 0 {
@@ -114,7 +130,6 @@ event AccumulateGenerator
 		args[0] := acc;
 		args[1] := value;
 		acc := func(args);
-		log "before: "+args[0].toString()+", value: "+value.toString()+", after: "+acc.toString();
 		return acc;
 	}
 	any container;
@@ -123,7 +138,28 @@ event AccumulateGenerator
 	any acc;
 	any index;
 }
-
+/** @private */
+event SequenceCycleGenerator
+{
+	static action create(any seq) returns SequenceCycleGenerator
+	{
+		SequenceCycleGenerator sg := new SequenceCycleGenerator;
+		sg.seq := seq;
+		sg.seqsize := (<action<> returns integer> seq.getAction("size"))();
+		sg.index := 0;
+		return sg;
+	}
+	action generate(any _) returns any
+	{
+		any value := seq.getEntry(index);
+		index := index + 1;
+		if index >= seqsize { index := 0; }
+		return value;
+	}
+	any seq;
+	integer index;
+	integer seqsize;
+}
 /**
 
 Provides functional operations on EPL containers, such as map, reduce, filter and slice.
@@ -135,7 +171,6 @@ eg: <tt>Fn.slice(Fn.map(Fn.filter(Fn.count(), (integer i)->i%2=0), (integer i)->
 */
 event Fn
 {
-
 /* TODO: 
  - make key the last param for dictionary functors and optional via introspection
  - reduce with optional inital value
@@ -159,7 +194,7 @@ event Fn
 	{
 		string tn := container.getTypeName();
 		any newcontainer := new any;
-		action<sequence<any>> returns any genericFunc := func.getGenericAction();
+		action<sequence<any>> returns any genericFunc := Util.getGenericAction(func);
 		if tn.find("sequence<") = 0 {
 			newcontainer := any.newInstance(tn);
 			action<integer> setsize := <action<integer>> newcontainer.getAction("setSize");
@@ -215,7 +250,7 @@ event Fn
 	{
 		string tn := container.getTypeName();
 		any newcontainer := new any;
-		action<sequence<any>> returns any genericFunc := func.getGenericAction();
+		action<sequence<any>> returns any genericFunc := Util.getGenericAction(func);
 		if tn.find("sequence<") = 0 {
 			newcontainer := any.newInstance("sequence<"+func.getActionReturnTypeName()+">");
 			action<integer> setsize := <action<integer>> newcontainer.getAction("setSize");
@@ -264,7 +299,7 @@ event Fn
 	{
 		string tn := container.getTypeName();
 		any accumulator := any.newInstance(func.getActionReturnTypeName());
-		action<sequence<any>> returns any genericFunc := func.getGenericAction();
+		action<sequence<any>> returns any genericFunc := Util.getGenericAction(func);
 		if tn.find("sequence<") = 0 {
 			any value := new any;
 			sequence<any> args := [accumulator, value];
@@ -401,11 +436,14 @@ event Fn
 	{
 		return generateFrom(item, identity/* (any a)->a */);
 	}
-	/** TODO - loops iterations of seq forever 
+	/** Iterates through a sequence of items and continues looping forever.
+	  @param seq The sequence of values to iterate over
+	  @returns A generator which iterates over <tt>seq</tt>
+	*/
 	static action cycle(any seq) returns Generator
 	{
-		//TODO
-	}*/
+		return generate(SequenceCycleGenerator.create(seq).generate);
+	}
 	/** TODO - values are seq<any> sets of arguments to func 
 	static action argmap(any seq, any func) returns Generator
 	{
