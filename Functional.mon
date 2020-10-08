@@ -212,13 +212,17 @@ Provides functional operations on EPL containers, such as map, reduce, filter an
 Also provides generators which can be used as input to the functional operations.
 
 eg: <tt>Fn.slice(Fn.map(Fn.filter(Fn.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);</tt>
-
 */
 event Fn
 {
-/* TODO: 
+/* TODO:
  - make key the last param for dictionary functors and optional via introspection
- - reduce with optional inital value
+ - maybe try fluent style: Fn([1,2,3]).filter((integer i)->i%2=0).map((integer i)->i*2).slice(2, 8, 2);
+
+myseq ...
+
+<sequence<type>> Fn.map(myseq, func)
+<sequence<type>> Functional(mysq).map(func).extract()
 */
 	/**
 	  Takes either a sequence, a dictionary or a generator and filters the contents using a boolean predicate func.
@@ -647,5 +651,18 @@ event Fn
 	static action concatseq(any seqA, any seqB) returns any {} */
 	/** TODO - pads sequence with n instances of value
 	static action padseq(any seq, any item, integer n) returns any {} */
+	/** TODO - trivial functor for checking booleans
+	static action istrue(boolean b) returns boolean { return b; } */
+	/** TODO - return true iff all items are true
+	static action anyfalse(boolean acc, boolean b) returns boolean { return acc or not b; }
+	static action all(any seq) returns boolean { return not reduce(seq, anyfalse); } */
+	/** TODO - return true iff any items is true
+	static action anytrue(boolean acc, boolean b) returns boolean { return acc or b; }
+	static action any(any seq) returns boolean { return reduce(seq, anytrue); } */
+	/** TODO - reduce with initial value 
+	static action reduceFrom(... */
+	/** TODO - accumulate with initial value
+	static action accumulateFrom(...
+	*/
 }
 
