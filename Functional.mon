@@ -651,8 +651,8 @@ myseq ...
 	static action concatseq(any seqA, any seqB) returns any {} */
 	/** TODO - pads sequence with n instances of value
 	static action padseq(any seq, any item, integer n) returns any {} */
-	/** TODO - trivial functor for checking booleans
-	static action istrue(boolean b) returns boolean { return b; } */
+	/** TODO - trivial functor for checking booleans */
+	static action istrue(boolean b) returns boolean { return b; }
 	/** TODO - return true iff all items are true
 	static action anyfalse(boolean acc, boolean b) returns boolean { return acc or not b; }
 	static action all(any seq) returns boolean { return not reduce(seq, anyfalse); } */

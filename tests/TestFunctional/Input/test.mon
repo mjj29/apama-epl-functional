@@ -30,6 +30,7 @@ monitor TestFn {
 		testcycle();
 		testfloatpredicates();
 		testargmap();
+		testboolpredicates();
 	}
 	action testmap()
 	{
@@ -228,6 +229,14 @@ monitor TestFn {
 		Asserts.assertEquals("ggs 4", [<any>1,"hello"], Util.getGenericSequence([<any>1,"hello"]));
 		Asserts.assertEquals("ggs 5", [<any>1,2], Util.getGenericSequence([1,2]));
 		Asserts.assertEquals("ggs 6", [<any>1.,2,[3]], Util.getGenericSequence([<any>1.,2,[3]]));
+	}
+
+	action testboolpredicates()
+	{
+		Asserts.assertEquals("boolpred 1", true, Fn.istrue(true));
+		Asserts.assertEquals("boolpred 2", false, Fn.istrue(false));
+
+
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }
