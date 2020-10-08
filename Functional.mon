@@ -148,6 +148,28 @@ event AccumulateGenerator
 	any acc;
 	any index;
 }
+
+/** @private */
+event ArgMapGenerator
+{
+	static action create(action<sequence<any>> returns any source, any func) returns ArgMapGenerator
+	{
+		ArgMapGenerator ag := new ArgMapGenerator;
+		ag.func := Util.getGenericAction(func);
+		ag.source := source;
+		ag.args := new sequence<any>;
+		return ag;
+	}
+	action generate(any _) returns any
+	{
+		any args := source(self.args);
+		return func(args.getEntries());
+	}
+	action<sequence<any>> returns any func;
+	action<sequence<any>> returns any source;
+	sequence<any> args;
+}
+
 /** @private */
 event SequenceCycleGenerator
 {
@@ -170,6 +192,19 @@ event SequenceCycleGenerator
 	integer index;
 	integer seqsize;
 }
+
+/** @private */
+event NotPred
+{
+	action<sequence<any>> returns any pred;
+	sequence<any> args;
+	action execute(any i) returns boolean
+	{
+		args[0] := i;
+		return not <boolean> pred(args);
+	}
+}
+
 /**
 
 Provides functional operations on EPL containers, such as map, reduce, filter and slice.
@@ -454,11 +489,24 @@ event Fn
 	{
 		return generate(SequenceCycleGenerator.create(seq).generate);
 	}
-	/** TODO - values are seq<any> sets of arguments to func 
-	static action argmap(any seq, any func) returns Generator
+	/** Iterates through a sequence, or a generator and uses the result as a list of arguments with which to invoke a function.
+		These inner sequences will be treated as a list of arguments to the given function, or a single argument to that function.
+		Each generated item will be the result of calling func with the next set of arguments.
+		@param container A sequence or a generator.
+		@param func A function which takes each item in container and returns a result.
+	*/
+	static action argmap(any container, any func) returns Generator
 	{
-		//TODO
-	}*/
+		action<sequence<any>> returns any source;
+		if container.hasAction("generate") {
+			source := container.getAction("generate").getGenericAction();
+		} else if container.getTypeName().find("sequence<") = 0 {
+			source := (<any>cycle(container).generate).getGenericAction();
+		} else {
+			throw com.apama.exceptions.Exception("Can only argmap over a sequence or generator", "typeException");
+		}
+		return generate(ArgMapGenerator.create(source, func).generate);
+	}
 	/**
 	  Returns a sequence containing the given item the given number of times.
 	  @param item The element to put in the sequence.
@@ -527,7 +575,7 @@ event Fn
 			}
 		}
 	}
-	/** 
+	/**
 		Action which concatenates strings using accumulate or reduce.
 	*/
 	static action concat(string acc, string i) returns string
@@ -543,26 +591,43 @@ event Fn
 	}
 	/**
 		A predicate which returns true if the argument is odd.
-	*/ 
+	*/
 	static action odd(integer i) returns boolean
 	{
 		return i%2=1;
 	}
-	/** TODO 
+	/** A predicate which returns true if the argument is a whole number. */
 	static action whole(any i) returns boolean
 	{
-		//TODO
-	}*/
-	/** TODO 
+		switch (i) {
+			case integer: { return true; }
+			case float: { return i.fractionalPart() = 0.; }
+			case decimal: { return i.fractionalPart() = 0.d; }
+		}
+	}
+	/** A predicate which returns true if the argument is positive (not including 0). */
 	static action positive(any i) returns boolean
 	{
-		//TODO
-	}*/
-	/** TODO 
+		switch (i) {
+			case integer: { return i > 0; }
+			case float: { return i > 0.; }
+			case decimal: { return i > 0.d; }
+		}
+	}
+	/** A predicate which returns true if the argument is negative. */
 	static action negative(any i) returns boolean
 	{
-		//TODO
-	}*/
+		switch (i) {
+			case integer: { return i < 0; }
+			case float: { return i < 0.; }
+			case decimal: { return i < 0.d; }
+		}
+	}
+	/** A predicate which inverts the value of another predicate. */
+	static action _not(any pred) returns action<any> returns boolean
+	{
+		return NotPred(pred.getGenericAction(), [new any]).execute;
+	}
 	/** TODO - return a functor which will pass the given arguments, followed by the actual arguments, for partially evaluated functions 
 	static action partial(any func, sequence<any> args) returns ...
 	{
