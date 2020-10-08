@@ -1,6 +1,7 @@
 package com.apamax.test;
 using com.apamax.functional.Fn;
 using com.apamax.functional.Generator;
+using com.apamax.functional.Util;
 
 /** This monitor is responsible for ...  */
 monitor TestFn {
@@ -25,6 +26,7 @@ monitor TestFn {
 		testmul();
 		testconcat();
 		testeven();
+		testutil();
 		testcycle();
 		testfloatpredicates();
 		testargmap();
@@ -216,6 +218,16 @@ monitor TestFn {
 		Asserts.assertEquals("argmap single seq", Fn.slice(Fn.argmap([0,1,2], double), 0, 3, 1), [0,2,4]);
 		Asserts.assertEquals("argmap single gen", Fn.slice(Fn.argmap(Fn.count(), double), 0, 3, 1), [0,2,4]);
 		Asserts.assertEquals("argmap multiple seq", Fn.slice(Fn.argmap([[<any>1.,2],[<any>3.,4],[<any>5.,6]], addup), 0, 3, 1), [3.,7.,11.]);
+	}
+
+	action testutil()
+	{
+		Asserts.assertEquals("ggs 1", [<any>1], Util.getGenericSequence(1));
+		Asserts.assertEquals("ggs 2", [<any>1], Util.getGenericSequence([1]));
+		Asserts.assertEquals("ggs 3", [<any>1], Util.getGenericSequence([<any>1]));
+		Asserts.assertEquals("ggs 4", [<any>1,"hello"], Util.getGenericSequence([<any>1,"hello"]));
+		Asserts.assertEquals("ggs 5", [<any>1,2], Util.getGenericSequence([1,2]));
+		Asserts.assertEquals("ggs 6", [<any>1.,2,[3]], Util.getGenericSequence([<any>1.,2,[3]]));
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }
