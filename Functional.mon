@@ -20,14 +20,18 @@ event Util
 		If arg is already a sequence, copy the values from the sequence.
 	*/ 
 	static action getGenericSequence(any arg) returns sequence<any> {
-		// log "gGS: " + arg.toString();
-		// log "res: " + arg.getEntries().toString();
 		return arg.getEntries();
+	}
+
+	/** Return a new default instance of the return type of the function.
+	 */
+	static action returnTypeInstanceOf(any func) returns any {
+		return any.newInstance(func.getActionReturnTypeName());
 	}
 }
 
 /**
-  Represents a generator over a function. This class is used internally by Fuctional, but you can use any event with a generate method.
+  Represents a generator over a function. This class is used internally by Functional, but you can use any event with a generate method.
   Generate methods must take 0 arguments and can return the type of your choice (or any).
  */
 event Generator
@@ -99,10 +103,15 @@ event AccumulateGenerator
 {
 	static action create(any container, any func) returns AccumulateGenerator
 	{
+		return createFrom(Util.returnTypeInstanceOf(func), container, func);
+	}
+
+	static action createFrom(any start, any container, any func) returns AccumulateGenerator
+	{
 		AccumulateGenerator ag := new AccumulateGenerator;
 		ag.container := container;
 		ag.func := Util.getGenericAction(func);
-
+		ag.acc := start;
 		string tn := container.getTypeName();
 		if tn.find("sequence<") = 0 {
 			ag.index := 0;
@@ -115,7 +124,6 @@ event AccumulateGenerator
 			throw com.apama.exceptions.Exception("Can only accumulate over sequence or generator types", "typeException");
 		}
 		ag.args := [new any, new any];
-		ag.acc := any.newInstance(func.getActionReturnTypeName());
 		return ag;
 	}
 	action generate(any _) returns any
@@ -346,8 +354,27 @@ myseq ...
 	*/
 	static action reduce(any container, any func) returns any
 	{
+		return reduceFrom(Util.returnTypeInstanceOf(func), container, func);
+	}
+	
+	/**
+	  Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.
+
+	  eg: <tt>Fn.reduceFrom(42, numbers, (integer a, integer i)->a+i)</tt>
+
+	  Specifically, given:
+	  <ul>
+	  	<li><tt>sequence&lt;TYPEA&gt; container</tt> and <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each value, retaining <tt>TYPEB</tt> each time.</li>
+	  	<li><tt>dictionary&lt;KEYTYPE,VALUETYPE&gt; container</tt> and <tt>action&lt;TYPEB,KEYTYPE,VALUETYPE&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each key and value, retaining <tt>TYPEB</tt> each time.</li>
+	  </ul>
+	  @param accumulator initial value, of <tt>TYPEB</tt>
+	  @param container A sequence or dictionary.
+	  @param func An accumulator function or lambda.
+	  @returns The final result of the accumulator function.
+	*/
+	static action reduceFrom(any accumulator, any container, any func) returns any
+	{
 		string tn := container.getTypeName();
-		any accumulator := any.newInstance(func.getActionReturnTypeName());
 		action<sequence<any>> returns any genericFunc := Util.getGenericAction(func);
 		if tn.find("sequence<") = 0 {
 			any value := new any;
@@ -439,7 +466,7 @@ myseq ...
 	*/
 	static action generate(any func) returns Generator
 	{
-		return Generator.create(any.newInstance(func.getActionReturnTypeName()), func);
+		return Generator.create(Util.returnTypeInstanceOf(func), func);
 	}
 	/**
 	  Create a generator from a function, which is passed the previous value and should return the next value.
@@ -525,6 +552,7 @@ myseq ...
 	/**
 	  Returns a generator which accumulates over the underlying container, returning the result after accumulating each item.
 	  Similar to reduce, but returns a generator for each item in turn, rather than just the final total.
+	  The initial value of the accumulator is the default value of func's return type (<tt>TYPEB</tt>).
 	  @param container The sequence, dictionary or generator to accumulate.
 	  @param func An <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB</tt> action or lambda which accumulates each item in turn and returns the new total.
 	  @returns A generator which returns each accumulated item in turn.
@@ -532,9 +560,21 @@ myseq ...
 	*/
 	static action accumulate(any container, any func) returns Generator
 	{
-		return Generator.create(new any, AccumulateGenerator.create(container, func).generate);
+		return accumulateFrom(Util.returnTypeInstanceOf(func), container, func);
 	}
-
+	/**
+	  Returns a generator which accumulates over the underlying container, returning the result after accumulating each item.
+	  Similar to reduce, but returns a generator for each item in turn, rather than just the final total.
+	  @param start The initial value of the accumulator; must have the same type as func's return type (<tt>TYPEB</tt>).
+	  @param container The sequence, dictionary or generator to accumulate.
+	  @param func An <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB</tt> action or lambda which accumulates each item in turn and returns the new total.
+	  @returns A generator which returns each accumulated item in turn.
+	  @see reduceFrom
+	*/
+	static action accumulateFrom(any start, any container, any func) returns Generator
+	{
+		return Generator.create(new any, AccumulateGenerator.createFrom(start, container, func).generate);
+	}
 	/**
 	  Action for adding up a sequence or generator of integer, float or decimal using accumulate or reduce.
 
@@ -653,16 +693,30 @@ myseq ...
 	static action padseq(any seq, any item, integer n) returns any {} */
 	/** TODO - trivial functor for checking booleans */
 	static action istrue(boolean b) returns boolean { return b; }
-	/** TODO - return true iff all items are true
-	static action anyfalse(boolean acc, boolean b) returns boolean { return acc or not b; }
-	static action all(any seq) returns boolean { return not reduce(seq, anyfalse); } */
-	/** TODO - return true iff any items is true
-	static action anytrue(boolean acc, boolean b) returns boolean { return acc or b; }
-	static action any(any seq) returns boolean { return reduce(seq, anytrue); } */
-	/** TODO - reduce with initial value 
-	static action reduceFrom(... */
-	/** TODO - accumulate with initial value
-	static action accumulateFrom(...
-	*/
+	/** @private
+		Functor used to implement _all()  */
+	static action anyfalse(boolean acc, boolean b) returns boolean { 
+		return acc or not b; 
+	}
+
+	/** @private
+		Functor used to implement _any()*/
+	static action anytrue(boolean acc, boolean b) returns boolean {
+		return acc or b;
+	}
+
+	/**
+		Logical 'AND' over a sequence of booleans
+		@param seq sequence<any> of booleans.
+		Return true iff none of the items in the sequence are false.  If seq is empty, returns true.
+	 */
+	static action _all(any seq) returns boolean { return not <boolean> reduceFrom(false, seq, anyfalse); } 
+
+	/**
+		Logical 'OR' over a sequence of booleans
+		@param seq sequence<any> of booleans.
+		Return false iff none of the items in the sequence are true.  If seq is empty, returns false.
+	 */
+	static action _any(any seq) returns boolean { return <boolean> reduceFrom(false, seq, anytrue); }
 }
 
