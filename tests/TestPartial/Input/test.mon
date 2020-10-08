@@ -1,0 +1,55 @@
+package com.apamax.test;
+using com.apamax.functional.Fn;
+using com.apamax.functional.Generator;
+using com.apamax.functional.Util;
+
+/** This monitor is responsible for ...  */
+monitor TestFn
+{
+	action onload()
+	{
+		testpartial();
+		testpartialwithfn();
+	}
+	action testpartial()
+	{
+		Asserts.assertEquals("partial 1", Fn.partial(tester, new any).exec([1,2,3]), [1,2,3]);
+		Asserts.assertEquals("partial 2", Fn.partial(tester, 1).exec([2,3]), [1,2,3]);
+		Asserts.assertEquals("partial 3", Fn.partial(tester, [1,2]).exec(3), [1,2,3]);
+		Asserts.assertEquals("partial 4", Fn.partial(tester, [1,2,3]).exec(new any), [1,2,3]);
+
+		Asserts.assertEquals("partial chains 1", Fn.partial(Fn.partial(Fn.partial(tester, 1), 2), 3).exec(new any), [1,2,3]);
+		Asserts.assertEquals("partial chains 2", Fn.partial(tester, 1).partial(2).partial(3).exec(new any), [1,2,3]);
+
+		Asserts.assertEquals("partial types", Fn.partial(tester2, [<any>1,"-"]).exec(2.4), "1-2.4");
+	}
+	action testpartialwithfn()
+	{
+		Generator g := Fn.generate(Fn.partial(increment, 2));
+		Asserts.assertEquals("partial gen 0", 2, g.generate());
+		Asserts.assertEquals("partial gen 1", 4, g.generate());
+		Asserts.assertEquals("partial gen 2", 6, g.generate());
+
+		Asserts.assertEquals("partial filter", [7,9], Fn.filter([1,3,5,7,9], Fn.partial(threshold, 5)));
+		Asserts.assertEquals("partial reduce", 4.03125, Fn.reduce([1,2,3,4,5], Fn.partial(ewma, 0.5)));
+
+		g := Fn.accumulate(Fn.count(), Fn.partial(ewma, 0.5));
+		Asserts.assertEquals("partial acc 0", 0., g.generate());
+		Asserts.assertEquals("partial acc 1", 0.5, g.generate());
+		Asserts.assertEquals("partial acc 2", 1.25, g.generate());
+
+		Asserts.assertEquals("partial map", Fn.map([1,2,3,4,5], Fn.partial(nof, "B")), ["B", "BB", "BBB", "BBBB", "BBBBB"]);
+
+		g := Fn.argmap([[1,2],[3,4]], Fn.partial(mulseq, 3));
+		Asserts.assertEquals("partial argmap 0", [3,6], g.generate());
+		Asserts.assertEquals("partial argmap 1", [9,12], g.generate());
+	}
+	action ewma(float factor, float acc, integer i) returns float { return factor*(acc)+((1.-factor)*i.toFloat()); }
+	action mulseq(integer i, integer j, integer k) returns sequence<integer> { return [i*j, i*k]; }
+	action nof(string item, integer n) returns string { return "".join(<sequence<string>>Fn.slice(Fn.repeat(item), 0, n, 1)); }
+	action threshold(integer thresh, integer i) returns boolean { return i>thresh; }
+	action increment(integer offs, integer i) returns integer { return i+offs; }
+	action tester(integer i, integer j, integer k) returns sequence<integer> { return [i,j,k]; }
+	action tester2(integer i, string s, float f) returns string { return i.toString()+s+f.toString(); }
+}
+

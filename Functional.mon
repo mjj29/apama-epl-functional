@@ -3,8 +3,20 @@ package com.apamax.functional;
 /** @private */
 event Util
 {
+	static action getFuncReturnType(any func) returns string
+	{
+		if func.hasAction("getFuncReturnType") {
+			return (<action<> returns string> func.getAction("getFuncReturnType"))();
+		}
+		return func.getActionReturnTypeName();
+	}
 	static action getGenericAction(any func) returns action<sequence<any>> returns any
 	{
+		if func.hasAction("execGeneric") {
+			return <action<sequence<any>> returns any> func.getAction("execGeneric");
+		} else if func.hasAction("generate") {
+			return func.getAction("generate").getGenericAction();
+		}
 		switch (func) {
 			case action<sequence<any>> returns any: {
 				return func;
@@ -20,8 +32,6 @@ event Util
 		If arg is already a sequence, copy the values from the sequence.
 	*/ 
 	static action getGenericSequence(any arg) returns sequence<any> {
-		// log "gGS: " + arg.toString();
-		// log "res: " + arg.getEntries().toString();
 		return arg.getEntries();
 	}
 }
@@ -38,9 +48,13 @@ event Generator
 		Generator g := new Generator;
 		g.accumulator := start;
 		g.func := Util.getGenericAction(func);
+		g.retType := Util.getFuncReturnType(func);
 		g.args := [g.accumulator];
 		return g;
 	}
+	
+	/** @private */
+	action getFuncReturnType() returns string { return retType; }
 
 	/**
 	  Returns the next item from this generator.
@@ -59,6 +73,8 @@ event Generator
 	action<sequence<any>> returns any func;
 	/** @private */
 	sequence<any> args;
+	/** @private */
+	string retType;
 }
 
 /** @private */
@@ -75,10 +91,12 @@ event GenerateIf
 		}
 		return new any; // never happens
 	}
+	action getFuncReturnType() returns string { return retType; }
 	action<sequence<any>> returns any wrapped;
 	action<sequence<any>> returns any predicate;
 	sequence<any> wrappedargs;
 	sequence<any> args;
+	string retType;
 }
 /** @private */
 event GenerateWrap
@@ -88,10 +106,12 @@ event GenerateWrap
 		args[0] := wrapped(wrappedargs);
 		return func(args);
 	}
+	action getFuncReturnType() returns string { return retType; }
 	action<sequence<any>> returns any wrapped;
 	action<sequence<any>> returns any func;
 	sequence<any> wrappedargs;
 	sequence<any> args;
+	string retType;
 }
 
 /** @private */
@@ -102,6 +122,7 @@ event AccumulateGenerator
 		AccumulateGenerator ag := new AccumulateGenerator;
 		ag.container := container;
 		ag.func := Util.getGenericAction(func);
+		ag.retType := Util.getFuncReturnType(func);
 
 		string tn := container.getTypeName();
 		if tn.find("sequence<") = 0 {
@@ -115,7 +136,7 @@ event AccumulateGenerator
 			throw com.apama.exceptions.Exception("Can only accumulate over sequence or generator types", "typeException");
 		}
 		ag.args := [new any, new any];
-		ag.acc := any.newInstance(func.getActionReturnTypeName());
+		ag.acc := any.newInstance(Util.getFuncReturnType(func));
 		return ag;
 	}
 	action generate(any _) returns any
@@ -142,11 +163,13 @@ event AccumulateGenerator
 		acc := func(args);
 		return acc;
 	}
+	action getFuncReturnType() returns string { return retType; }
 	any container;
 	action<sequence<any>> returns any func;
 	sequence<any> args;
 	any acc;
 	any index;
+	string retType;
 }
 
 /** @private */
@@ -156,6 +179,7 @@ event ArgMapGenerator
 	{
 		ArgMapGenerator ag := new ArgMapGenerator;
 		ag.func := Util.getGenericAction(func);
+		ag.retType := Util.getFuncReturnType(func);
 		ag.source := source;
 		ag.args := new sequence<any>;
 		return ag;
@@ -165,9 +189,11 @@ event ArgMapGenerator
 		any args := source(self.args);
 		return func(args.getEntries());
 	}
+	action getFuncReturnType() returns string { return retType; }
 	action<sequence<any>> returns any func;
 	action<sequence<any>> returns any source;
 	sequence<any> args;
+	string retType;
 }
 
 /** @private */
@@ -179,6 +205,7 @@ event SequenceCycleGenerator
 		sg.seq := seq;
 		sg.seqsize := (<action<> returns integer> seq.getAction("size"))();
 		sg.index := 0;
+		sg.retType := seq.getTypeName().substring(9,-1);
 		return sg;
 	}
 	action generate(any _) returns any
@@ -188,9 +215,11 @@ event SequenceCycleGenerator
 		if index >= seqsize { index := 0; }
 		return value;
 	}
+	action getFuncReturnType() returns string { return retType; }
 	any seq;
 	integer index;
 	integer seqsize;
+	string retType;
 }
 
 /** @private */
@@ -203,6 +232,67 @@ event NotPred
 		args[0] := i;
 		return not <boolean> pred(args);
 	}
+}
+
+/** A partially evaluated function which can be passed to functional operators or later executed with the remaining arguments.
+
+	eg: <tt>Partial p := Fn.partial(concatFn, "Hello"); &lt;string&gt;p.exec(" world");</tt>
+*/
+event Partial
+{
+	/** @private */
+	static action create(any arguments, any func) returns Partial
+	{
+		Partial p := new Partial;
+		p.args := Util.getGenericSequence(arguments);
+		p.curriedArgs := p.args.size();
+		p.func := Util.getGenericAction(func);
+		p.retType := Util.getFuncReturnType(func);
+		return p;
+	}
+	/** @private */
+	action getFuncReturnType() returns string { return retType; }
+	/** @private */
+	action execGeneric(sequence<any> args) returns any { return exec(args); }
+	/** 
+		Execute the underlying function, passing in the remaining arguments.
+		@param args The remaining single argument, or sequence of all remaining arguments.
+		@return The result of executing the underlying function with the original and remaining arguments.
+	*/
+	action exec(any args) returns any
+	{
+		sequence<any> _args;
+		if args.empty() { _args := new sequence<any>; }
+		else { _args := args.getEntries(); }
+		integer targetArgs := curriedArgs+_args.size();
+		if (self.args.size() != targetArgs) {
+			self.args.setSize(targetArgs);
+		}
+		integer i := curriedArgs;
+		any a;
+		for a in _args {
+			self.args[i] := a;
+			i := i + 1;
+		}
+		
+		return func(self.args);
+	}
+	/** 
+		Add more partial arguments and return a new Partial which wraps this one.
+		@param args The additional single argument, or sequence of several additional arguments.
+	*/
+	action partial(any arguments) returns Partial
+	{
+		return Partial.create(arguments, self);
+	}
+	/** @private */
+	sequence<any> args;
+	/** @private */
+	integer curriedArgs;
+	/** @private */
+	action<sequence<any>> returns any func;
+	/** @private */
+	string retType;	
 }
 
 /**
@@ -273,7 +363,7 @@ myseq ...
 				}
 			}
 		} else if container.hasAction("generate") {
-			newcontainer := Generator.create(new any, GenerateIf(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any]).generate);
+			newcontainer := Generator.create(new any, GenerateIf(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any], Util.getFuncReturnType(container.getAction("generate"))));
 		} else {
 			throw com.apama.exceptions.Exception("Can only filter over container or generator types", "typeException");
 		}
@@ -301,7 +391,7 @@ myseq ...
 		any newcontainer := new any;
 		action<sequence<any>> returns any genericFunc := Util.getGenericAction(func);
 		if tn.find("sequence<") = 0 {
-			newcontainer := any.newInstance("sequence<"+func.getActionReturnTypeName()+">");
+			newcontainer := any.newInstance("sequence<"+Util.getFuncReturnType(func)+">");
 			action<integer> setsize := <action<integer>> newcontainer.getAction("setSize");
 			action<> returns integer getsize := <action<> returns integer> container.getAction("size");
 			setsize(getsize());
@@ -314,7 +404,7 @@ myseq ...
 				index := index + 1;
 			}
 		} else if tn.find("dictionary<") = 0 {
-			newcontainer := any.newInstance("dictionary<"+func.getActionParameterTypeNames()[0]+","+func.getActionReturnTypeName()+">");
+			newcontainer := any.newInstance("dictionary<"+func.getActionParameterTypeNames()[0]+","+Util.getFuncReturnType(func)+">");
 			any key := new any;
 			sequence<any> args := [key, key];
 			for key in container.getKeys() {
@@ -323,7 +413,7 @@ myseq ...
 				newcontainer.setEntry(key, genericFunc(args));
 			}
 		} else if container.hasAction("generate") {
-			newcontainer := Generator.create(new any, GenerateWrap(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any]).generate);
+			newcontainer := Generator.create(new any, GenerateWrap(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any], Util.getFuncReturnType(container.getAction("generate"))));
 		} else {
 			throw com.apama.exceptions.Exception("Can only map over container or generator types", "typeException");
 		}
@@ -347,7 +437,7 @@ myseq ...
 	static action reduce(any container, any func) returns any
 	{
 		string tn := container.getTypeName();
-		any accumulator := any.newInstance(func.getActionReturnTypeName());
+		any accumulator := any.newInstance(Util.getFuncReturnType(func));
 		action<sequence<any>> returns any genericFunc := Util.getGenericAction(func);
 		if tn.find("sequence<") = 0 {
 			any value := new any;
@@ -439,7 +529,7 @@ myseq ...
 	*/
 	static action generate(any func) returns Generator
 	{
-		return Generator.create(any.newInstance(func.getActionReturnTypeName()), func);
+		return Generator.create(any.newInstance(Util.getFuncReturnType(func)), func);
 	}
 	/**
 	  Create a generator from a function, which is passed the previous value and should return the next value.
@@ -632,11 +722,18 @@ myseq ...
 	{
 		return NotPred(pred.getGenericAction(), [new any]).execute;
 	}
-	/** TODO - return a functor which will pass the given arguments, followed by the actual arguments, for partially evaluated functions 
-	static action partial(any func, sequence<any> args) returns ...
+	/** Partially execute a function, providing some arguments, to be later executed with the remaining arguments.
+	  Arguments must be provided left-to-right for the function call to be invoked.
+      eg: <tt>Partial p := Fn.partial(concatFn, "Hello"); &lt;string&gt;p.exec(" world");</tt>
+	  Partial objects can be passed to any of the other actions on Fn where an action would be expected.
+	  @param args The arguments to store for later execution. May be a single argument, or a sequence of several arguments.
+	  @param func A function (including an earlier partial()) to execute once all arguments are provided.
+	*/
+	static action partial(any func, any args) returns Partial
 	{
-		//TODO
-	}*/
+		return Partial.create(args, func);
+	}
+	
 	/** TODO - run func on pair-wise elements of two iterables 
 	static action zipfn(any containerA, any containerB, any func) returns Generator {} */
 	/** TODO - take any number of arguments and return them in a sequence
