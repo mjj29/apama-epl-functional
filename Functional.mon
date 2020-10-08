@@ -14,6 +14,16 @@ event Util
 			}
 		}
 	}
+
+	/** Convert value(s) of arg to a sequence<any> containing the value(s).
+		If arg is not a sequence, create the sequence and put the value in it.
+		If arg is already a sequence, copy the values from the sequence.
+	*/ 
+	static action getGenericSequence(any arg) returns sequence<any> {
+		// log "gGS: " + arg.toString();
+		// log "res: " + arg.getEntries().toString();
+		return arg.getEntries();
+	}
 }
 
 /**
