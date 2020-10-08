@@ -82,7 +82,7 @@ monitor TestFn {
 		Asserts.assertEquals("generate map 24", 24, g.generate());
 		Asserts.assertEquals("generate map 28", 28, g.generate());
 
-		g := Fn.generate(addCow/* (string s) -> s+"cow" */);
+		g := Fn.generator(addCow/* (string s) -> s+"cow" */);
 		Asserts.assertEquals("generate cow", "cow", g.generate());
 		Asserts.assertEquals("generate cowcow", "cowcow", g.generate());
 		Asserts.assertEquals("generate cowcowcow", "cowcowcow", g.generate());

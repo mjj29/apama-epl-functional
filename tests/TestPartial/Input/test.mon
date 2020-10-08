@@ -25,7 +25,7 @@ monitor TestFn
 	}
 	action testpartialwithfn()
 	{
-		Generator g := Fn.generate(Fn.partial(increment, 2));
+		Generator g := Fn.generator(Fn.partial(increment, 2));
 		Asserts.assertEquals("partial gen 0", 2, g.generate());
 		Asserts.assertEquals("partial gen 1", 4, g.generate());
 		Asserts.assertEquals("partial gen 2", 6, g.generate());
