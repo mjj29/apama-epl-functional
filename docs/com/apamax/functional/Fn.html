@@ -124,6 +124,11 @@
 <br>A predicate which returns true if the argument is odd.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Partial.html" title="type in com.apamax.functional">com.apamax.functional.Partial</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#partial()">partial</A></B>(any&nbsp;func,&nbsp;any&nbsp;args)</CODE>
+<br>
+<br>Partially execute a function, providing some arguments, to be later executed with the remaining arguments. Arguments must be provided left-to-right for the function call to be invoked. eg: <tt>Partial p := Fn.partial(concatFn, "Hello"); &lt;string&gt;p.exec(" world");</tt> Partial objects can be passed to any of the other actions on Fn where an action would be expected.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;boolean</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#positive()">positive</A></B>(any&nbsp;i)</CODE>
 <br>
 <br>A predicate which returns true if the argument is positive (not including 0).</TD>
@@ -376,6 +381,19 @@
 <DD>
 <tt>i</tt>
 </DD>
+</DL>
+<HR>
+<A NAME="partial()"></A>
+<H3>partial</H3>
+<PRE>
+<A HREF="../../../com/apamax/functional/Partial.html" title="type in com.apamax.functional">com.apamax.functional.Partial</A>&nbsp;static <B>partial</B>(any&nbsp;func,&nbsp;any&nbsp;args)</PRE>Partially execute a function, providing some arguments, to be later executed with the remaining arguments. Arguments must be provided left-to-right for the function call to be invoked. eg: <tt>Partial p := Fn.partial(concatFn, "Hello"); &lt;string&gt;p.exec(" world");</tt> Partial objects can be passed to any of the other actions on Fn where an action would be expected.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>func</tt>&nbsp;-&nbsp;A function (including an earlier partial()) to execute once all arguments are provided.</DD>
+<DD>
+<tt>args</tt>&nbsp;-&nbsp;The arguments to store for later execution. May be a single argument, or a sequence of several arguments.</DD>
 </DL>
 <HR>
 <A NAME="positive()"></A>
