@@ -44,7 +44,12 @@ monitor TestFn
 		g := Fn.argmap([[1,2],[3,4]], Fn.partial(mulseq, 3));
 		Asserts.assertEquals("partial argmap 0", [3,6], g.generate());
 		Asserts.assertEquals("partial argmap 1", [9,12], g.generate());
+
+		Asserts.assertEquals("partial dict 1arg", Fn.filter({"a":1,"b":2,"c":3,"d":4}, Fn.partial(threshold, 2)), {"c":3,"d":4});
+		Asserts.assertEquals("partial dict 2arg", Fn.filter({"a":1,"b":2,"c":3,"d":4}, Fn.partial(tester3, 2)), {"c":3,"d":4});
+
 	}
+	action tester3(integer threshold, string key, integer value) returns boolean { return value>threshold; }
 	action ewma(float factor, float acc, integer i) returns float { return factor*(acc)+((1.-factor)*i.toFloat()); }
 	action mulseq(integer i, integer j, integer k) returns sequence<integer> { return [i*j, i*k]; }
 	action nof(string item, integer n) returns string { return "".join(<sequence<string>>Fn.slice(Fn.repeat(item), 0, n, 1)); }
