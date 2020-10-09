@@ -17,6 +17,7 @@ monitor TestFn
 		Asserts.assertEquals("partial 2", Fn.partial(tester, 1).exec([2,3]), [1,2,3]);
 		Asserts.assertEquals("partial 3", Fn.partial(tester, [1,2]).exec(3), [1,2,3]);
 		Asserts.assertEquals("partial 4", Fn.partial(tester, [1,2,3]).exec(new any), [1,2,3]);
+		Asserts.assertEquals("partial 5", Fn.partial(Fn.identity, {"a":6, "b":12, "c":18}).exec(new any), {"a":6, "b":12, "c":18});
 
 		Asserts.assertEquals("partial chains 1", Fn.partial(Fn.partial(Fn.partial(tester, 1), 2), 3).exec(new any), [1,2,3]);
 		Asserts.assertEquals("partial chains 2", Fn.partial(tester, 1).partial(2).partial(3).exec(new any), [1,2,3]);

@@ -235,12 +235,27 @@ monitor TestFn {
 
 	action testutil()
 	{
-		Asserts.assertEquals("ggs 1", [<any>1], Util.getGenericSequence(1));
-		Asserts.assertEquals("ggs 2", [<any>1], Util.getGenericSequence([1]));
-		Asserts.assertEquals("ggs 3", [<any>1], Util.getGenericSequence([<any>1]));
-		Asserts.assertEquals("ggs 4", [<any>1,"hello"], Util.getGenericSequence([<any>1,"hello"]));
-		Asserts.assertEquals("ggs 5", [<any>1,2], Util.getGenericSequence([1,2]));
-		Asserts.assertEquals("ggs 6", [<any>1.,2,[3]], Util.getGenericSequence([<any>1.,2,[3]]));
+		Asserts.assertEquals("ggs int", [<any>1], Util.getGenericSequence(1));
+		Asserts.assertEquals("ggs seq", [<any>1], Util.getGenericSequence([1]));
+		Asserts.assertEquals("ggs any seq", [<any>1], Util.getGenericSequence([<any>1]));
+		Asserts.assertEquals("ggs mixed seq", [<any>1,"hello"], Util.getGenericSequence([<any>1,"hello"]));
+		Asserts.assertEquals("ggs int seq", [<any>1,2], Util.getGenericSequence([1,2]));
+		Asserts.assertEquals("ggs mixed seq /w [seq]", [<any>1.,2,[3]], Util.getGenericSequence([<any>1.,2,[3]]));
+		Asserts.assertEquals("ggs new any", new sequence<any>, Util.getGenericSequence(new any));
+		Asserts.assertEquals("ggs dict", [<any>{"a":1}], Util.getGenericSequence({"a":1}));
+		Asserts.assertEquals("ggs dict [seq]", [<any>{"A":[1]}], Util.getGenericSequence({"A":[1]}));
+		Asserts.assertEquals("ggs event", [<any>new Fn], Util.getGenericSequence(new Fn));
+		//
+		// any l := Fn.partial;
+		// any r := Fn.partial;
+		// if l = r {	// Comparison of actions throws IllegalArgumentException
+		// 	log "l=r";
+		// }
+		//
+		// These asserts require comparison of actions, so we cannot demonstrate that getGenericSequence() works:
+		//
+		// Asserts.assertEquals("ggs event action", [<any>Fn.partial], Util.getGenericSequence(Fn.partial));
+		// Asserts.assertEquals("ggs monitor action", [<any>onload], Util.getGenericSequence(onload));
 	}
 
 	action testboolpredicates()

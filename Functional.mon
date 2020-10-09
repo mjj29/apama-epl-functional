@@ -33,7 +33,13 @@ event Util
 		If arg is already a sequence, copy the values from the sequence.
 	*/ 
 	static action getGenericSequence(any arg) returns sequence<any> {
-		return arg.getEntries();
+		if arg.empty() {
+			return new sequence<any>;
+		} else if arg.getTypeName().find("sequence<") = 0 {	// already a sequence?
+			return arg.getEntries();
+		} else {
+			return [arg];
+		}
 	}
 
 	/** Return a new default instance of the return type of the function.
