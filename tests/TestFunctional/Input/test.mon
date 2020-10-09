@@ -42,9 +42,10 @@ monitor TestFn {
 		s := <sequence<string>> Fn.map(s2, replaceWithCows/* (any a) -> "cow" */);
 		Asserts.assertEquals("map sequence integer", s, ["cow", "cow", "cow"]);
 
-		dictionary<string, integer> d2 := {"Hello world":1, "Foo":2};
-		dictionary<string, string> d := <dictionary<string, string>> Fn.map(d2, replaceValueWithCows/* (string k, any v) -> "cow" */);
-		Asserts.assertEquals("map dictionary", d, {"Hello world":"cow", "Foo":"cow"});
+		dictionary<string, integer> d := {"Hello world":1, "Foo":2};
+
+		Asserts.assertEquals("map dictionary 2arg", <dictionary<string,string>>Fn.map(d, replaceValueWithCows/* (string k, any v) -> "cow" */), {"Hello world":"cow", "Foo":"cow"});
+		Asserts.assertEquals("map dictionary 1arg", Fn.map(d, replaceWithCows/* (string k, any v) -> "cow" */), {"Hello world":"cow", "Foo":"cow"});
 	}
 	action testfilter()
 	{
@@ -53,8 +54,8 @@ monitor TestFn {
 		Asserts.assertEquals("filter sequence", s, ["cow", "cow", "cow"]);
 
 		dictionary<string, string> d := {"Hello world":"cow", "Foo":"cow", "baz":"quux", "to be or":"not to be"};
-		d := <dictionary<string, string>> Fn.filter(d, checkValueForCow/* (string k, string v) -> v="cow" */);
-		Asserts.assertEquals("filter dictionary", d, {"Hello world":"cow", "Foo":"cow"});
+		Asserts.assertEquals("filter dictionary 2args", Fn.filter(d, checkValueForCow/* (string k, string v) -> v="cow" */), {"Hello world":"cow", "Foo":"cow"});
+		Asserts.assertEquals("filter dictionary 1arg", Fn.filter(d, checkForCow/* (string v) -> v="cow" */), {"Hello world":"cow", "Foo":"cow"});
 	}
 	action testreduce()
 	{
@@ -64,7 +65,8 @@ monitor TestFn {
 
 		dictionary<string, integer> dsi := {"a":2, "b":4, "c":5};
 		string dstr := <string> Fn.reduce(dsi, stringify/* (string a, string k, integer v) -> acc+k+":"+v.toString()+", " */);
-		Asserts.assertEquals("reduce dictionary", dstr, "a:2, b:4, c:5, ");
+		Asserts.assertEquals("reduce dictionary 2args", dstr, "a:2, b:4, c:5, ");
+		Asserts.assertEquals("reduce dictionary 1arg", Fn.reduce(dsi, Fn.sum), 11);
 	}
 	action testgenerators()
 	{
