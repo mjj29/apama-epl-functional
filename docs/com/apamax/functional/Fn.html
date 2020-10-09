@@ -54,12 +54,27 @@
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2"><B>Action summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;boolean</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#_all()">_all</A></B>(any&nbsp;seq)</CODE>
+<br>
+<br>Logical 'AND' over a sequence of booleans</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;boolean</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#_any()">_any</A></B>(any&nbsp;seq)</CODE>
+<br>
+<br>Logical 'OR' over a sequence of booleans</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;action&lt;any&gt;&nbsp;returns&nbsp;boolean</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#_not()">_not</A></B>(any&nbsp;pred)</CODE>
 <br>
 <br>A predicate which inverts the value of another predicate.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#accumulate()">accumulate</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
+<br>
+<br>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total. The initial value of the accumulator is the default value of func's return type (<tt>TYPEB</tt>).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#accumulateFrom()">accumulateFrom</A></B>(any&nbsp;start,&nbsp;any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
 <br>
 <br>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total.</TD>
 </TR>
@@ -104,6 +119,11 @@
 <br>Create a generator from a function, which is passed the previous value and should return the next value.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;boolean</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#istrue()">istrue</A></B>(boolean&nbsp;b)</CODE>
+<br>
+<br>A predicate which returns true if the argument is true.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;integer</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#map()">map</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
 <br>
 <br>Takes either a sequence, a dictionary or a generator and maps the contents using a function.</TD>
@@ -144,6 +164,11 @@
 <br>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#reduceFrom()">reduceFrom</A></B>(any&nbsp;accumulator,&nbsp;any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
+<br>
+<br>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#repeat()">repeat</A></B>(any&nbsp;item)</CODE>
 <br>
 <br>Repeats the given element forever.</TD>
@@ -174,6 +199,26 @@
 <TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2"><B>Action detail</B></FONT></TH>
 </TR>
 </TABLE>
+<A NAME="_all()"></A>
+<H3>_all</H3>
+<PRE>boolean&nbsp;static <B>_all</B>(any&nbsp;seq)</PRE>Logical 'AND' over a sequence of booleans<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>seq</tt>&nbsp;-&nbsp;sequence<any> of booleans. Return true iff none of the items in the sequence are false.  If seq is empty, returns true.</DD>
+</DL>
+<HR>
+<A NAME="_any()"></A>
+<H3>_any</H3>
+<PRE>boolean&nbsp;static <B>_any</B>(any&nbsp;seq)</PRE>Logical 'OR' over a sequence of booleans<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>seq</tt>&nbsp;-&nbsp;sequence<any> of booleans. Return false iff none of the items in the sequence are true.  If seq is empty, returns false.</DD>
+</DL>
+<HR>
 <A NAME="_not()"></A>
 <H3>_not</H3>
 <PRE>action&lt;any&gt;&nbsp;returns&nbsp;boolean&nbsp;static <B>_not</B>(any&nbsp;pred)</PRE>A predicate which inverts the value of another predicate.<DL>
@@ -188,7 +233,7 @@
 <A NAME="accumulate()"></A>
 <H3>accumulate</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>accumulate</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total.<DL>
+<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>accumulate</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total. The initial value of the accumulator is the default value of func's return type (<tt>TYPEB</tt>).<DL>
 <DT>
 <B>Parameters:</B>
 </DT>
@@ -208,6 +253,33 @@
 <B>See Also:</B>
 </DT>
 <DD>reduce&nbsp;-&nbsp;</DD>
+</DL>
+<HR>
+<A NAME="accumulateFrom()"></A>
+<H3>accumulateFrom</H3>
+<PRE>
+<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>accumulateFrom</B>(any&nbsp;start,&nbsp;any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>start</tt>&nbsp;-&nbsp;The initial value of the accumulator; must have the same type as func's return type (<tt>TYPEB</tt>).</DD>
+<DD>
+<tt>container</tt>&nbsp;-&nbsp;The sequence, dictionary or generator to accumulate.</DD>
+<DD>
+<tt>func</tt>&nbsp;-&nbsp;An <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB</tt> action or lambda which accumulates each item in turn and returns the new total.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>A generator which returns each accumulated item in turn.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>reduceFrom&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <A NAME="argmap()"></A>
@@ -326,6 +398,17 @@
 <DD>A generator for <tt>TYPE</tt>.</DD>
 </DL>
 <HR>
+<A NAME="istrue()"></A>
+<H3>istrue</H3>
+<PRE>boolean&nbsp;static <B>istrue</B>(boolean&nbsp;b)</PRE>A predicate which returns true if the argument is true.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>b</tt>
+</DD>
+</DL>
+<HR>
 <A NAME="map()"></A>
 <H3>map</H3>
 <PRE>integer&nbsp;static <B>map</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence, a dictionary or a generator and maps the contents using a function.<br>
@@ -432,6 +515,28 @@
 <DT>
 <B>Parameters:</B>
 </DT>
+<DD>
+<tt>container</tt>&nbsp;-&nbsp;A sequence or dictionary.</DD>
+<DD>
+<tt>func</tt>&nbsp;-&nbsp;An accumulator function or lambda.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>The final result of the accumulator function.</DD>
+</DL>
+<HR>
+<A NAME="reduceFrom()"></A>
+<H3>reduceFrom</H3>
+<PRE>any&nbsp;static <B>reduceFrom</B>(any&nbsp;accumulator,&nbsp;any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.<br>
+<br> eg: <tt>Fn.reduceFrom(42, numbers, (integer a, integer i)->a+i)</tt><br>
+<br> Specifically, given: <ul> <li><tt>sequence&lt;TYPEA&gt; container</tt> and <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each value, retaining <tt>TYPEB</tt> each time.</li> <li><tt>dictionary&lt;KEYTYPE,VALUETYPE&gt; container</tt> and <tt>action&lt;TYPEB,KEYTYPE,VALUETYPE&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each key and value, retaining <tt>TYPEB</tt> each time.</li> </ul><DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>accumulator</tt>&nbsp;-&nbsp;initial value, of <tt>TYPEB</tt></DD>
 <DD>
 <tt>container</tt>&nbsp;-&nbsp;A sequence or dictionary.</DD>
 <DD>

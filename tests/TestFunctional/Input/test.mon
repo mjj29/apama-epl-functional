@@ -30,6 +30,7 @@ monitor TestFn {
 		testcycle();
 		testfloatpredicates();
 		testargmap();
+		testboolpredicates();
 	}
 	action testmap()
 	{
@@ -121,18 +122,30 @@ monitor TestFn {
 	}
 	action testaccumulate()
 	{
-		Generator g := Fn.accumulate([3,5,7,9], addup/* (integer a, integer i)->a+i */);
+		Generator g := Fn.accumulate([3,5,7,9], addup/* (float a, integer i)->a+i */);
 		Asserts.assertEquals("accumulate seq 1", 3., g.generate());
 		Asserts.assertEquals("accumulate seq 2", 8., g.generate());
 		Asserts.assertEquals("accumulate seq 3", 15., g.generate());
 		Asserts.assertEquals("accumulate seq 4", 24., g.generate());
 
-		g := Fn.accumulate(Fn.count(), addup/* (integer a, integer i)->a+i */);
+		g := Fn.accumulateFrom(10., [3,5,7,9], addup/* (float a, integer i)->a+i */);
+		Asserts.assertEquals("accumulateFrom seq 1", 13., g.generate());
+		Asserts.assertEquals("accumulateFrom seq 2", 18., g.generate());
+		Asserts.assertEquals("accumulateFrom seq 3", 25., g.generate());
+		Asserts.assertEquals("accumulateFrom seq 4", 34., g.generate());
+
+		g := Fn.accumulate(Fn.count(), addup/* (float a, integer i)->a+i */);
 		Asserts.assertEquals("accumulate gen 0", 0., g.generate());
 		Asserts.assertEquals("accumulate gen 1", 1., g.generate());
 		Asserts.assertEquals("accumulate gen 2", 3., g.generate());
 		Asserts.assertEquals("accumulate gen 3", 6., g.generate());
 		Asserts.assertEquals("accumulate gen 4", 10., g.generate());
+
+		g := Fn.accumulateFrom(100., Fn.count(), addup/* (float a, integer i)->a+i */);
+		Asserts.assertEquals("accumulateFrom gen 0", 100., g.generate());
+		Asserts.assertEquals("accumulateFrom gen 1", 101., g.generate());
+		Asserts.assertEquals("accumulateFrom gen 2", 103., g.generate());
+
 	}
 	action testsum()
 	{
@@ -228,6 +241,30 @@ monitor TestFn {
 		Asserts.assertEquals("ggs 4", [<any>1,"hello"], Util.getGenericSequence([<any>1,"hello"]));
 		Asserts.assertEquals("ggs 5", [<any>1,2], Util.getGenericSequence([1,2]));
 		Asserts.assertEquals("ggs 6", [<any>1.,2,[3]], Util.getGenericSequence([<any>1.,2,[3]]));
+	}
+
+	action testboolpredicates()
+	{
+		Asserts.assertEquals("istrue(t)", true, Fn.istrue(true));
+		Asserts.assertEquals("istrue(f)", false, Fn.istrue(false));
+
+		Asserts.assertEquals("_all(t,t)", true, Fn._all([true, true]));
+		Asserts.assertEquals("_all(t,f)", false, Fn._all([true, false]));
+		Asserts.assertEquals("_all(f,t)", false, Fn._all([false, true]));
+		Asserts.assertEquals("_all(f,f)", false, Fn._all([false, false]));
+		Asserts.assertEquals("_all(f)", false, Fn._all([false]));
+		Asserts.assertEquals("_all(t)", true, Fn._all([true]));
+		Asserts.assertEquals("_all([])", true, Fn._all(new sequence<boolean>));
+		Asserts.assertEquals("_all([<any>])", true, Fn._all(new sequence<any>));
+
+		Asserts.assertEquals("_any(t,t)", true, Fn._any([true, true]));
+		Asserts.assertEquals("_any(t,f)", true, Fn._any([true, false]));
+		Asserts.assertEquals("_any(f,t)", true, Fn._any([false, true]));
+		Asserts.assertEquals("_any(f,f)", false, Fn._any([false, false]));
+		Asserts.assertEquals("_any(f)", false, Fn._any([false]));
+		Asserts.assertEquals("_any(t)", true, Fn._any([true]));
+		Asserts.assertEquals("_any([])", false, Fn._any(new sequence<boolean>));
+		Asserts.assertEquals("_any([<any>])", false, Fn._any(new sequence<any>));
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }
