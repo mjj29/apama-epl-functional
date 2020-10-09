@@ -3,8 +3,21 @@ package com.apamax.functional;
 /** @private */
 event Util
 {
+	static action getFuncReturnType(any func) returns string
+	{
+		if func.hasAction("getFuncReturnType") {
+			return (<action<> returns string> func.getAction("getFuncReturnType"))();
+		}
+		return func.getActionReturnTypeName();
+	}
+
 	static action getGenericAction(any func) returns action<sequence<any>> returns any
 	{
+		if func.hasAction("execGeneric") {
+			return <action<sequence<any>> returns any> func.getAction("execGeneric");
+		} else if func.hasAction("generate") {
+			return func.getAction("generate").getGenericAction();
+		}
 		switch (func) {
 			case action<sequence<any>> returns any: {
 				return func;
@@ -26,7 +39,7 @@ event Util
 	/** Return a new default instance of the return type of the function.
 	 */
 	static action returnTypeInstanceOf(any func) returns any {
-		return any.newInstance(func.getActionReturnTypeName());
+		return any.newInstance(getFuncReturnType(func));
 	}
 }
 
@@ -42,9 +55,13 @@ event Generator
 		Generator g := new Generator;
 		g.accumulator := start;
 		g.func := Util.getGenericAction(func);
+		g.retType := Util.getFuncReturnType(func);
 		g.args := [g.accumulator];
 		return g;
 	}
+	
+	/** @private */
+	action getFuncReturnType() returns string { return retType; }
 
 	/**
 	  Returns the next item from this generator.
@@ -63,6 +80,8 @@ event Generator
 	action<sequence<any>> returns any func;
 	/** @private */
 	sequence<any> args;
+	/** @private */
+	string retType;
 }
 
 /** @private */
@@ -79,10 +98,12 @@ event GenerateIf
 		}
 		return new any; // never happens
 	}
+	action getFuncReturnType() returns string { return retType; }
 	action<sequence<any>> returns any wrapped;
 	action<sequence<any>> returns any predicate;
 	sequence<any> wrappedargs;
 	sequence<any> args;
+	string retType;
 }
 /** @private */
 event GenerateWrap
@@ -92,10 +113,12 @@ event GenerateWrap
 		args[0] := wrapped(wrappedargs);
 		return func(args);
 	}
+	action getFuncReturnType() returns string { return retType; }
 	action<sequence<any>> returns any wrapped;
 	action<sequence<any>> returns any func;
 	sequence<any> wrappedargs;
 	sequence<any> args;
+	string retType;
 }
 
 /** @private */
@@ -112,6 +135,8 @@ event AccumulateGenerator
 		ag.container := container;
 		ag.func := Util.getGenericAction(func);
 		ag.acc := start;
+		ag.retType := Util.getFuncReturnType(func);
+
 		string tn := container.getTypeName();
 		if tn.find("sequence<") = 0 {
 			ag.index := 0;
@@ -150,11 +175,13 @@ event AccumulateGenerator
 		acc := func(args);
 		return acc;
 	}
+	action getFuncReturnType() returns string { return retType; }
 	any container;
 	action<sequence<any>> returns any func;
 	sequence<any> args;
 	any acc;
 	any index;
+	string retType;
 }
 
 /** @private */
@@ -164,6 +191,7 @@ event ArgMapGenerator
 	{
 		ArgMapGenerator ag := new ArgMapGenerator;
 		ag.func := Util.getGenericAction(func);
+		ag.retType := Util.getFuncReturnType(func);
 		ag.source := source;
 		ag.args := new sequence<any>;
 		return ag;
@@ -173,9 +201,11 @@ event ArgMapGenerator
 		any args := source(self.args);
 		return func(args.getEntries());
 	}
+	action getFuncReturnType() returns string { return retType; }
 	action<sequence<any>> returns any func;
 	action<sequence<any>> returns any source;
 	sequence<any> args;
+	string retType;
 }
 
 /** @private */
@@ -187,6 +217,7 @@ event SequenceCycleGenerator
 		sg.seq := seq;
 		sg.seqsize := (<action<> returns integer> seq.getAction("size"))();
 		sg.index := 0;
+		sg.retType := seq.getTypeName().substring(9,-1);
 		return sg;
 	}
 	action generate(any _) returns any
@@ -196,9 +227,11 @@ event SequenceCycleGenerator
 		if index >= seqsize { index := 0; }
 		return value;
 	}
+	action getFuncReturnType() returns string { return retType; }
 	any seq;
 	integer index;
 	integer seqsize;
+	string retType;
 }
 
 /** @private */
@@ -211,6 +244,67 @@ event NotPred
 		args[0] := i;
 		return not <boolean> pred(args);
 	}
+}
+
+/** A partially evaluated function which can be passed to functional operators or later executed with the remaining arguments.
+
+	eg: <tt>Partial p := Fn.partial(concatFn, "Hello"); &lt;string&gt;p.exec(" world");</tt>
+*/
+event Partial
+{
+	/** @private */
+	static action create(any arguments, any func) returns Partial
+	{
+		Partial p := new Partial;
+		p.args := Util.getGenericSequence(arguments);
+		p.curriedArgs := p.args.size();
+		p.func := Util.getGenericAction(func);
+		p.retType := Util.getFuncReturnType(func);
+		return p;
+	}
+	/** @private */
+	action getFuncReturnType() returns string { return retType; }
+	/** @private */
+	action execGeneric(sequence<any> args) returns any { return exec(args); }
+	/** 
+		Execute the underlying function, passing in the remaining arguments.
+		@param args The remaining single argument, or sequence of all remaining arguments.
+		@return The result of executing the underlying function with the original and remaining arguments.
+	*/
+	action exec(any args) returns any
+	{
+		sequence<any> _args;
+		if args.empty() { _args := new sequence<any>; }
+		else { _args := args.getEntries(); }
+		integer targetArgs := curriedArgs+_args.size();
+		if (self.args.size() != targetArgs) {
+			self.args.setSize(targetArgs);
+		}
+		integer i := curriedArgs;
+		any a;
+		for a in _args {
+			self.args[i] := a;
+			i := i + 1;
+		}
+		
+		return func(self.args);
+	}
+	/** 
+		Add more partial arguments and return a new Partial which wraps this one.
+		@param args The additional single argument, or sequence of several additional arguments.
+	*/
+	action partial(any arguments) returns Partial
+	{
+		return Partial.create(arguments, self);
+	}
+	/** @private */
+	sequence<any> args;
+	/** @private */
+	integer curriedArgs;
+	/** @private */
+	action<sequence<any>> returns any func;
+	/** @private */
+	string retType;	
 }
 
 /**
@@ -281,7 +375,7 @@ myseq ...
 				}
 			}
 		} else if container.hasAction("generate") {
-			newcontainer := Generator.create(new any, GenerateIf(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any]).generate);
+			newcontainer := Generator.create(new any, GenerateIf(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any], Util.getFuncReturnType(container.getAction("generate"))));
 		} else {
 			throw com.apama.exceptions.Exception("Can only filter over container or generator types", "typeException");
 		}
@@ -309,7 +403,7 @@ myseq ...
 		any newcontainer := new any;
 		action<sequence<any>> returns any genericFunc := Util.getGenericAction(func);
 		if tn.find("sequence<") = 0 {
-			newcontainer := any.newInstance("sequence<"+func.getActionReturnTypeName()+">");
+			newcontainer := any.newInstance("sequence<"+Util.getFuncReturnType(func)+">");
 			action<integer> setsize := <action<integer>> newcontainer.getAction("setSize");
 			action<> returns integer getsize := <action<> returns integer> container.getAction("size");
 			setsize(getsize());
@@ -322,7 +416,7 @@ myseq ...
 				index := index + 1;
 			}
 		} else if tn.find("dictionary<") = 0 {
-			newcontainer := any.newInstance("dictionary<"+func.getActionParameterTypeNames()[0]+","+func.getActionReturnTypeName()+">");
+			newcontainer := any.newInstance("dictionary<"+func.getActionParameterTypeNames()[0]+","+Util.getFuncReturnType(func)+">");
 			any key := new any;
 			sequence<any> args := [key, key];
 			for key in container.getKeys() {
@@ -331,7 +425,7 @@ myseq ...
 				newcontainer.setEntry(key, genericFunc(args));
 			}
 		} else if container.hasAction("generate") {
-			newcontainer := Generator.create(new any, GenerateWrap(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any]).generate);
+			newcontainer := Generator.create(new any, GenerateWrap(container.getAction("generate").getGenericAction(), genericFunc, new sequence<any>, [new any], Util.getFuncReturnType(container.getAction("generate"))));
 		} else {
 			throw com.apama.exceptions.Exception("Can only map over container or generator types", "typeException");
 		}
@@ -459,25 +553,25 @@ myseq ...
 	  Create a generator from a function, which is passed the previous value and should return the next value.
 	  The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.
 
-	  eg: <tt>Fn.generate((integer i)->i+1)</tt>
+	  eg: <tt>Fn.generator((integer i)->i+1)</tt>
 
 	  @param func An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.
 	  @returns A generator for <tt>TYPE</tt>.
 	*/
-	static action generate(any func) returns Generator
+	static action generator(any func) returns Generator
 	{
 		return Generator.create(Util.returnTypeInstanceOf(func), func);
 	}
 	/**
 	  Create a generator from a function, which is passed the previous value and should return the next value.
 
-	  eg: <tt>Fn.generate(100, (integer i)->i+1)</tt>
+	  eg: <tt>Fn.generatorFrom(100, (integer i)->i+1)</tt>
 
 	  @param start The value to pass to func to generate the first generation.
 	  @param func An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.
 	  @returns A generator for <tt>TYPE</tt>.
 	*/
-	static action generateFrom(any start, any func) returns Generator
+	static action generatorFrom(any start, any func) returns Generator
 	{
 		return Generator.create(start, func);
 	}
@@ -489,7 +583,7 @@ myseq ...
 	*/
 	static action count() returns Generator
 	{
-		return generateFrom(-1, increment/* (integer i) -> i+1 */);
+		return generatorFrom(-1, increment/* (integer i) -> i+1 */);
 	}
 
 	/**
@@ -497,8 +591,8 @@ myseq ...
 	*/
 	static action range(integer start, integer end, integer stride) returns sequence<integer>
 	{
-		// better would be slice(generateFrom(start-1, (integer i)->i+stride), 0, (end-start)/stride, 1)
-		return <sequence<integer>> slice(generateFrom(start-1, increment), 0, end-start, stride);
+		// better would be slice(generatorFrom(start-1, (integer i)->i+stride), 0, (end-start)/stride, 1)
+		return <sequence<integer>> slice(generatorFrom(start-1, increment), 0, end-start, stride);
 	}
 
 	/** @private */
@@ -510,7 +604,7 @@ myseq ...
 	*/
 	static action repeat(any item) returns Generator
 	{
-		return generateFrom(item, identity/* (any a)->a */);
+		return generatorFrom(item, identity/* (any a)->a */);
 	}
 	/** Iterates through a sequence of items and continues looping forever.
 	  @param seq The sequence of values to iterate over
@@ -518,7 +612,7 @@ myseq ...
 	*/
 	static action cycle(any seq) returns Generator
 	{
-		return generate(SequenceCycleGenerator.create(seq).generate);
+		return generator(SequenceCycleGenerator.create(seq).generate);
 	}
 	/** Iterates through a sequence, or a generator and uses the result as a list of arguments with which to invoke a function.
 		These inner sequences will be treated as a list of arguments to the given function, or a single argument to that function.
@@ -536,7 +630,7 @@ myseq ...
 		} else {
 			throw com.apama.exceptions.Exception("Can only argmap over a sequence or generator", "typeException");
 		}
-		return generate(ArgMapGenerator.create(source, func).generate);
+		return generator(ArgMapGenerator.create(source, func).generate);
 	}
 	/**
 	  Returns a sequence containing the given item the given number of times.
@@ -672,11 +766,18 @@ myseq ...
 	{
 		return NotPred(pred.getGenericAction(), [new any]).execute;
 	}
-	/** TODO - return a functor which will pass the given arguments, followed by the actual arguments, for partially evaluated functions 
-	static action partial(any func, sequence<any> args) returns ...
+	/** Partially execute a function, providing some arguments, to be later executed with the remaining arguments.
+	  Arguments must be provided left-to-right for the function call to be invoked.
+      eg: <tt>Partial p := Fn.partial(concatFn, "Hello"); &lt;string&gt;p.exec(" world");</tt>
+	  Partial objects can be passed to any of the other actions on Fn where an action would be expected.
+	  @param args The arguments to store for later execution. May be a single argument, or a sequence of several arguments.
+	  @param func A function (including an earlier partial()) to execute once all arguments are provided.
+	*/
+	static action partial(any func, any args) returns Partial
 	{
-		//TODO
-	}*/
+		return Partial.create(args, func);
+	}
+	
 	/** TODO - run func on pair-wise elements of two iterables 
 	static action zipfn(any containerA, any containerB, any func) returns Generator {} */
 	/** TODO - take any number of arguments and return them in a sequence
@@ -691,7 +792,7 @@ myseq ...
 	static action concatseq(any seqA, any seqB) returns any {} */
 	/** TODO - pads sequence with n instances of value
 	static action padseq(any seq, any item, integer n) returns any {} */
-	/** TODO - trivial functor for checking booleans */
+	/** A predicate which returns true if the argument is true. */
 	static action istrue(boolean b) returns boolean { return b; }
 	/** @private
 		Functor used to implement _all()  */
@@ -720,3 +821,191 @@ myseq ...
 	static action _any(any seq) returns boolean { return <boolean> reduceFrom(false, seq, anytrue); }
 }
 
+/**
+  Wrapper event for usage of Fn in a fluent style. 
+  Contains instance methods for operators, static methods for creation,
+  all of which return values wrapped in a Functional for further calls.
+  Functors and predicates are still used from Fn.
+  The underlying value can be retrieved at the end of the chain with the <tt>get</tt> action.
+
+  eg: <tt>Functional.count().filter(Fn.even)).map((integer i)->i*2).slice(2, 8, 2);</tt>
+
+  You can create a Functional either using one of the static methods, 
+  or by wrapping a sequence, dictionary or generator directly.
+
+  eg: <tt>Functional([1,2,3,4]).filter(Fn.even).reduce(Fn.sum)</tt>
+*/
+event Functional
+{
+	/** Filters the contents using a boolean predicate func.
+	
+      Works on dictionary, sequence or generator.
+
+	  eg: <tt>numbers.filter((integer i)->i%2=0)</tt>
+
+	  Semantics are as <tt>Fn.filter</tt>
+	  @param func A boolean predicate function or lambda.
+	  @returns A Functional container filtered using the predicate function.
+	  @see Fn.filter
+	*/
+	action filter(any func) returns Functional
+	{ return Functional(Fn.filter(container, func)); }
+	
+	/**
+	  Returns a given sub-range as a finite sequence. 
+	
+	  Works on sequence or generator. 
+	  If it is a generator, it will invoke the generator sufficient times immediately to satisfy the slice.
+
+	  eg: <tt>numbers.slice(5, 20, 2)</tt>
+
+	  @param start The first item to return.
+	  @param end The last item to return (-1 = all, only permitted for sequences).
+	  @param stride The number of items to increment each time (1 = all).
+	  @returns A Functional containing the selected range of values.
+	  @see Fn.slice
+	*/
+	action slice(integer start, integer end, integer stride) returns Functional
+	{ return Functional(Fn.slice(container, start, end, stride)); }
+	
+	/**
+	  Maps the contents using a function.
+	  
+	  Works on dictionary, sequence or generator.
+	
+	  eg: <tt>numbers.map((integer i)->i*2)</tt>
+
+	  Semantics are as <tt>Fn.map</tt>
+	  
+	  @param func A function or lambda from old value type to new value type.
+	  @returns The container with all the values run through func.
+	  @see Fn.map
+	*/
+	action map(any func) returns Functional
+	{ return Functional(Fn.map(container, func)); }
+	
+	/**
+	  Accumulates all of the contents using an accumulator function, returning the final result.
+
+	  Works on a sequence or a dictionary. The result is the actual value, not a Functional, since it's no longer a container.
+	
+	  eg: <tt>numbers.reduce((integer a, integer i)->a+i)</tt>
+
+	  Semantics are as <tt>Fn.reduce</tt>
+	
+	  @param func An accumulator function or lambda.
+	  @returns The final result of the accumulator function.
+	  @see Fn.reduce
+	*/
+	action reduce(any func) returns any
+	{ return Fn.reduce(container, func); }
+	
+	/** 
+	  Use the contents as a list of arguments with which to invoke a function.
+	
+	  Works on a sequence or a generator.
+	
+	  These inner sequences will be treated as a list of arguments to the given function, or a single argument to that function.
+	  Each item in the result will be the result of calling func with the next set of arguments.
+	  
+	  @param func A function which takes each item in container and returns a result.
+	  @see Fn.argmap
+    */
+	action argmap(any func) returns Functional
+	{ return Functional(Fn.argmap(container, func)); }
+	
+	/**
+	  Returns a generator which accumulates over the underlying container, returning the result after accumulating each item.
+	  Similar to reduce, but returns a generator for each item in turn, rather than just the final total.
+	  @param func An <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB</tt> action or lambda which accumulates each item in turn and returns the new total.
+	  @returns A generator which returns each accumulated item in turn, wrapped in a Functional.
+	  @see Fn.accumulate
+	*/
+	action accumulate(any func) returns Functional
+	{ return Functional(Fn.accumulate(container, func)); }
+	
+	/**
+	  If this Functional is wrapping a generator, generate one item with the underlying generator and return it.
+	
+	  Only works on generators.
+	
+	  @returns The next item from the wrapped generator.
+	  @see Generator.generate
+	*/
+	action generate() returns any { return Util.getGenericAction(container.getAction("generate"))(new sequence<any>); }
+	
+	/**
+	  Return the wrapped container.
+    */
+	action get() returns any { return container; }
+	
+	/**
+	  Create a generator from a function, which is passed the previous value and should return the next value.
+	  The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.
+
+	  eg: <tt>Functional.generator((integer i)->i+1)</tt>
+
+	  @param func An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.
+	  @returns A generator for <tt>TYPE</tt>, wrapped in a Functional.
+	  @see Fn.generator
+	*/
+	static action generator(any func) returns Functional
+	{ return Functional(Fn.generator(func)); }
+	
+	/**
+	  Create a generator from a function, which is passed the previous value and should return the next value.
+
+	  eg: <tt>Functional.generatorFrom(100, (integer i)->i+1)</tt>
+
+	  @param start The value to pass to func to generate the first generation.
+	  @param func An <tt>action&lt;TYPE&gt; returns TYPE</tt> action or lambda which takes the previous value and returns the next value.
+	  @returns A generator for <tt>TYPE</tt>, wrapped in a functional.
+	  @see Fn.generator
+	*/
+	static action generatorFrom(any start, any func) returns Functional
+	{ return Functional(Fn.generatorFrom(start, func)); }
+	
+	/**
+	  Returns a Functional generator producing sequential integers with the first one being 0.
+	  @see Fn.count
+	*/
+	static action count() returns Functional
+	{ return Functional(Fn.count()); }
+	
+	/**
+	  Returns a Functional range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.
+	  @see Fn.range
+	*/
+	static action range(integer start, integer end, integer stride) returns Functional
+	{ return Functional(Fn.range(start, end, stride)); }
+	
+	/**
+	  Repeats the given element forever.
+	  @param item The item to return.
+	  @returns A generator which returns item over and over again, wrapped in a Functional.
+	  @see Fn.repeat
+	*/
+	static action repeat(any item) returns Functional
+	{ return Functional(Fn.repeat(item)); }
+	
+	/** Iterates through a sequence of items and continues looping forever.
+	  @param seq The sequence of values to iterate over
+	  @returns A generator which iterates over <tt>seq</tt>, wrapped in a Functional
+	  @see Fn.cycle
+	*/
+	static action cycle(any seq) returns Functional
+	{ return Functional(Fn.cycle(seq)); }
+	
+	/**
+	  Returns a sequence containing the given item the given number of times.
+	  @param item The element to put in the sequence.
+	  @param n The number of times to repeat the element.
+	  @returns A <tt>sequence&lt;ITEMTYPE&gt;</tt> with <tt>n</tt> <tt>item</tt>s in it, wrapped in a Functional.
+	  @see Fn.sequenceOf
+	*/
+	static action sequenceOf(any item, integer n) returns Functional
+	{ return Functional(Fn.sequenceOf(item, n)); }
+	
+	/** @private */
+	any container;
+}

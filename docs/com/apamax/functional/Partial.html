@@ -3,12 +3,12 @@
 
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<TITLE>Generator</TITLE>
-<META NAME="keywords" CONTENT="Generator&nbsp;event">
+<TITLE>Partial</TITLE>
+<META NAME="keywords" CONTENT="Partial&nbsp;event">
 <LINK REL="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style">
 <SCRIPT type="text/javascript">function windowTitle()
           {
-          parent.document.title="Generator";
+          parent.document.title="Partial";
           }
           </SCRIPT>
 <NOSCRIPT></NOSCRIPT>
@@ -16,9 +16,9 @@
 <BODY BGCOLOR="white" onload="windowTitle();">
 <TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
 <TR>
-<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2"><A target="_top" HREF="../../../index.html?com/apamax/functional/Generator.html"><B>FRAMES</B></A>  &nbsp;
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2"><A target="_top" HREF="../../../index.html?com/apamax/functional/Partial.html"><B>FRAMES</B></A>  &nbsp;
 
-            &nbsp;<A target="_top" HREF="Generator.html"><B>NO FRAMES</B></A>  &nbsp;
+            &nbsp;<A target="_top" HREF="Partial.html"><B>NO FRAMES</B></A>  &nbsp;
             &nbsp;<SCRIPT type="text/javascript"></SCRIPT>
 <NOSCRIPT>
 <A HREF="../../../alltypes-noframe.html"><B>All Classes</B></A>
@@ -44,17 +44,23 @@
 <HR>
 <H2>
 <FONT SIZE="-1">com.apamax.functional</FONT>
-<BR>Event Generator</H2>
-<HR>Represents a generator over a function. This class is used internally by Functional, but you can use any event with a generate method. Generate methods must take 0 arguments and can return the type of your choice (or any).<HR>
+<BR>Event Partial</H2>
+<HR>A partially evaluated function which can be passed to functional operators or later executed with the remaining arguments.<br>
+<br> eg: <tt>Partial p := Fn.partial(concatFn, "Hello"); &lt;string&gt;p.exec(" world");</tt><HR>
 <A NAME="action_summary"></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2"><B>Action summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Generator.html#generate()">generate</A></B>()</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Partial.html#exec()">exec</A></B>(any&nbsp;args)</CODE>
 <br>
-<br>Returns the next item from this generator.</TD>
+<br>Execute the underlying function, passing in the remaining arguments.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Partial.html" title="type in com.apamax.functional">com.apamax.functional.Partial</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Partial.html#partial()">partial</A></B>(any&nbsp;arguments)</CODE>
+<br>
+<br>Add more partial arguments and return a new Partial which wraps this one.</TD>
 </TR>
 </TABLE>&nbsp;<A NAME="action_detail"></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -62,21 +68,40 @@
 <TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2"><B>Action detail</B></FONT></TH>
 </TR>
 </TABLE>
-<A NAME="generate()"></A>
-<H3>generate</H3>
-<PRE>any&nbsp;<B>generate</B>()</PRE>Returns the next item from this generator.<DL>
+<A NAME="exec()"></A>
+<H3>exec</H3>
+<PRE>any&nbsp;<B>exec</B>(any&nbsp;args)</PRE>Execute the underlying function, passing in the remaining arguments.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>args</tt>&nbsp;-&nbsp;The remaining single argument, or sequence of all remaining arguments.</DD>
+</DL>
+<DL>
 <DT>
 <B>Returns:</B>
 </DT>
-<DD>The next item.</DD>
+<DD>The result of executing the underlying function with the original and remaining arguments.</DD>
+</DL>
+<HR>
+<A NAME="partial()"></A>
+<H3>partial</H3>
+<PRE>
+<A HREF="../../../com/apamax/functional/Partial.html" title="type in com.apamax.functional">com.apamax.functional.Partial</A>&nbsp;<B>partial</B>(any&nbsp;arguments)</PRE>Add more partial arguments and return a new Partial which wraps this one.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>arguments</tt>
+</DD>
 </DL>
 <HR>
 <HR>
 <TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
 <TR>
-<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2"><A target="_top" HREF="../../../index.html?com/apamax/functional/Generator.html"><B>FRAMES</B></A>  &nbsp;
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2"><A target="_top" HREF="../../../index.html?com/apamax/functional/Partial.html"><B>FRAMES</B></A>  &nbsp;
 
-            &nbsp;<A target="_top" HREF="Generator.html"><B>NO FRAMES</B></A>  &nbsp;
+            &nbsp;<A target="_top" HREF="Partial.html"><B>NO FRAMES</B></A>  &nbsp;
             &nbsp;<SCRIPT type="text/javascript"></SCRIPT>
 <NOSCRIPT>
 <A HREF="../../../alltypes-noframe.html"><B>All Classes</B></A>

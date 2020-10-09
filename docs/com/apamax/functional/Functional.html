@@ -32,7 +32,7 @@
 <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;
               </TD><TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1"><A HREF="../../..//com/apamax/functional/package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;
               </TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT>&nbsp;
-                </A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1" WIDTH="100%" ALIGN="RIGHT"><FONT CLASS="NavBarFont1"><B>EPL functional operators</B></FONT></TD>
+                </A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1" WIDTH="100%" ALIGN="RIGHT"><FONT CLASS="NavBarFont1"><B>Apama EPL Functional Operators</B></FONT></TD>
 </TR>
 </TABLE>
 </TD><TD ALIGN="right" VALIGN="top" ROWSPAN="3"><EM></EM></TD>
@@ -45,93 +45,89 @@
 <H2>
 <FONT SIZE="-1">com.apamax.functional</FONT>
 <BR>Event Functional</H2>
-<HR>Provides functional operations on EPL containers, such as map, reduce, filter and slice.<br>
-<br> Also provides generators which can be used as input to the functional operations.<br>
-<br> eg: <tt>Functional.slice(Functional.map(Functional.filter(Functional.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);</tt><HR>
+<HR>Wrapper event for usage of Fn in a fluent style. Contains instance methods for operators, static methods for creation, all of which return values wrapped in a Functional for further calls. Functors and predicates are still used from Fn. The underlying value can be retrieved at the end of the chain with the <tt>get</tt> action.<br>
+<br> eg: <tt>Functional.count().filter(Fn.even)).map((integer i)->i*2).slice(2, 8, 2);</tt><br>
+<br> You can create a Functional either using one of the static methods, or by wrapping a sequence, dictionary or generator directly.<br>
+<br> eg: <tt>Functional([1,2,3,4]).filter(Fn.even).reduce(Fn.sum)</tt><HR>
 <A NAME="action_summary"></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2"><B>Action summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#accumulate()">accumulate</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#accumulate()">accumulate</A></B>(any&nbsp;func)</CODE>
 <br>
 <br>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;string</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#concat()">concat</A></B>(string&nbsp;acc,&nbsp;string&nbsp;i)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#argmap()">argmap</A></B>(any&nbsp;func)</CODE>
 <br>
-<br>Action which concatenates strings using accumulate or reduce.</TD>
+<br>Use the contents as a list of arguments with which to invoke a function.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#count()">count</A></B>()</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#count()">count</A></B>()</CODE>
 <br>
-<br>Returns a generator producing sequential integers with the first one being 0.</TD>
+<br>Returns a Functional generator producing sequential integers with the first one being 0.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;boolean</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#even()">even</A></B>(integer&nbsp;i)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#cycle()">cycle</A></B>(any&nbsp;seq)</CODE>
 <br>
-<br>A predicate which returns true if the argument is even.</TD>
+<br>Iterates through a sequence of items and continues looping forever.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;integer</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#filter()">filter</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#filter()">filter</A></B>(any&nbsp;func)</CODE>
 <br>
-<br>Takes either a sequence, a dictionary or a generator and filters the contents using a boolean predicate func.</TD>
+<br>Filters the contents using a boolean predicate func.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#generate()">generate</A></B>(any&nbsp;func)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#generate()">generate</A></B>()</CODE>
+<br>
+<br>If this Functional is wrapping a generator, generate one item with the underlying generator and return it.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#generator()">generator</A></B>(any&nbsp;func)</CODE>
 <br>
 <br>Create a generator from a function, which is passed the previous value and should return the next value. The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#generateFrom()">generateFrom</A></B>(any&nbsp;start,&nbsp;any&nbsp;func)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#generatorFrom()">generatorFrom</A></B>(any&nbsp;start,&nbsp;any&nbsp;func)</CODE>
 <br>
 <br>Create a generator from a function, which is passed the previous value and should return the next value.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;integer</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#map()">map</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#get()">get</A></B>()</CODE>
 <br>
-<br>Takes either a sequence, a dictionary or a generator and maps the contents using a function.</TD>
+<br>Return the wrapped container.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#mul()">mul</A></B>(any&nbsp;acc,&nbsp;any&nbsp;i)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#map()">map</A></B>(any&nbsp;func)</CODE>
 <br>
-<br>Action for multiplying together the values in a sequence or generator of integer, float or decimal using accumulate or reduce.</TD>
+<br>Maps the contents using a function.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;boolean</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#odd()">odd</A></B>(integer&nbsp;i)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#range()">range</A></B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
 <br>
-<br>A predicate which returns true if the argument is odd.</TD>
+<br>Returns a Functional range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;sequence&lt;integer&gt;</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#range()">range</A></B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#reduce()">reduce</A></B>(any&nbsp;func)</CODE>
 <br>
-<br>Returns a range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.</TD>
+<br>Accumulates all of the contents using an accumulator function, returning the final result.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#reduce()">reduce</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
-<br>
-<br>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#repeat()">repeat</A></B>(any&nbsp;item)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#repeat()">repeat</A></B>(any&nbsp;item)</CODE>
 <br>
 <br>Repeats the given element forever.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#sequenceOf()">sequenceOf</A></B>(any&nbsp;item,&nbsp;integer&nbsp;n)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#sequenceOf()">sequenceOf</A></B>(any&nbsp;item,&nbsp;integer&nbsp;n)</CODE>
 <br>
 <br>Returns a sequence containing the given item the given number of times.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#slice()">slice</A></B>(any&nbsp;container,&nbsp;integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#slice()">slice</A></B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
 <br>
-<br>Takes either a sequence or a generator and returns a given sub-range as a finite sequence. If it is passed a generator, it will invoke the generator sufficient times immediately to satisfy the slice.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Functional.html#sum()">sum</A></B>(any&nbsp;acc,&nbsp;any&nbsp;i)</CODE>
-<br>
-<br>Action for adding up a sequence or generator of integer, float or decimal using accumulate or reduce.</TD>
+<br>Returns a given sub-range as a finite sequence.</TD>
 </TR>
 </TABLE>&nbsp;<A NAME="action_detail"></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -142,12 +138,10 @@
 <A NAME="accumulate()"></A>
 <H3>accumulate</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>accumulate</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total.<DL>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;<B>accumulate</B>(any&nbsp;func)</PRE>Returns a generator which accumulates over the underlying container, returning the result after accumulating each item. Similar to reduce, but returns a generator for each item in turn, rather than just the final total.<DL>
 <DT>
 <B>Parameters:</B>
 </DT>
-<DD>
-<tt>container</tt>&nbsp;-&nbsp;The sequence, dictionary or generator to accumulate.</DD>
 <DD>
 <tt>func</tt>&nbsp;-&nbsp;An <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB</tt> action or lambda which accumulates each item in turn and returns the new total.</DD>
 </DL>
@@ -155,54 +149,77 @@
 <DT>
 <B>Returns:</B>
 </DT>
-<DD>A generator which returns each accumulated item in turn.</DD>
+<DD>A generator which returns each accumulated item in turn, wrapped in a Functional.</DD>
 </DL>
 <DL>
 <DT>
 <B>See Also:</B>
 </DT>
-<DD>reduce&nbsp;-&nbsp;</DD>
+<DD>Fn.accumulate&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
-<A NAME="concat()"></A>
-<H3>concat</H3>
-<PRE>string&nbsp;static <B>concat</B>(string&nbsp;acc,&nbsp;string&nbsp;i)</PRE>Action which concatenates strings using accumulate or reduce.<DL>
+<A NAME="argmap()"></A>
+<H3>argmap</H3>
+<PRE>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;<B>argmap</B>(any&nbsp;func)</PRE>Use the contents as a list of arguments with which to invoke a function.<br>
+<br> Works on a sequence or a generator.<br>
+<br> These inner sequences will be treated as a list of arguments to the given function, or a single argument to that function. Each item in the result will be the result of calling func with the next set of arguments.<DL>
 <DT>
 <B>Parameters:</B>
 </DT>
 <DD>
-<tt>acc</tt>
-</DD>
-<DD>
-<tt>i</tt>
-</DD>
+<tt>func</tt>&nbsp;-&nbsp;A function which takes each item in container and returns a result.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.argmap&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <A NAME="count()"></A>
 <H3>count</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>count</B>()</PRE>Returns a generator producing sequential integers with the first one being 0.<HR>
-<A NAME="even()"></A>
-<H3>even</H3>
-<PRE>boolean&nbsp;static <B>even</B>(integer&nbsp;i)</PRE>A predicate which returns true if the argument is even.<DL>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;static <B>count</B>()</PRE>Returns a Functional generator producing sequential integers with the first one being 0.<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.count&nbsp;-&nbsp;</DD>
+</DL>
+<HR>
+<A NAME="cycle()"></A>
+<H3>cycle</H3>
+<PRE>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;static <B>cycle</B>(any&nbsp;seq)</PRE>Iterates through a sequence of items and continues looping forever.<DL>
 <DT>
 <B>Parameters:</B>
 </DT>
 <DD>
-<tt>i</tt>
-</DD>
+<tt>seq</tt>&nbsp;-&nbsp;The sequence of values to iterate over</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>A generator which iterates over <tt>seq</tt>, wrapped in a Functional</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.cycle&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <A NAME="filter()"></A>
 <H3>filter</H3>
-<PRE>integer&nbsp;static <B>filter</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence, a dictionary or a generator and filters the contents using a boolean predicate func.<br>
-<br> eg: <tt>Functional.filter(numbers, (integer i)->i%2=0)</tt><br>
-<br> Specifically, given: <ul> <li><tt>sequence&lt;TYPE&gt; container</tt> and <tt>action&lt;TYPE&gt; returns boolean func</tt> will return <tt>sequence&lt;TYPE&gt;</tt> containing all the elements for which <tt>func</tt> returned true.</li> <li><tt>dictionary&lt;KEYTYPE,VALUETYPE&gt; container</tt> and <tt>action&lt;KEYTYPE,VALUETYPE&gt; returns boolean func</tt> will return <tt>dictionary&lt;KEYTYPE,VALUETYPE&gt;</tt> containing all the elements for which <tt>func</tt> returned true.</li> <li>A generator returning <tt>TYPE</tt> and <tt>action&lt;TYPE&gt; returns boolean func</tt> will return a generator returning <tt>TYPE</tt> which only generates items from the original generator for which <tt>func</tt> returned true.</li> </ul><DL>
+<PRE>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;<B>filter</B>(any&nbsp;func)</PRE>Filters the contents using a boolean predicate func.<br>
+<br> Works on dictionary, sequence or generator.<br>
+<br> eg: <tt>numbers.filter((integer i)->i%2=0)</tt><br>
+<br> Semantics are as <tt>Fn.filter</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
-<DD>
-<tt>container</tt>&nbsp;-&nbsp;A sequence, dictionary or generator.</DD>
 <DD>
 <tt>func</tt>&nbsp;-&nbsp;A boolean predicate function or lambda.</DD>
 </DL>
@@ -210,14 +227,36 @@
 <DT>
 <B>Returns:</B>
 </DT>
-<DD>The container filtered using the predicate function.</DD>
+<DD>A Functional container filtered using the predicate function.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.filter&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <A NAME="generate()"></A>
 <H3>generate</H3>
+<PRE>any&nbsp;<B>generate</B>()</PRE>If this Functional is wrapping a generator, generate one item with the underlying generator and return it.<br>
+<br> Only works on generators.<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>The next item from the wrapped generator.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Generator.generate&nbsp;-&nbsp;</DD>
+</DL>
+<HR>
+<A NAME="generator()"></A>
+<H3>generator</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>generate</B>(any&nbsp;func)</PRE>Create a generator from a function, which is passed the previous value and should return the next value. The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.<br>
-<br> eg: <tt>Functional.generate((integer i)->i+1)</tt><DL>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;static <B>generator</B>(any&nbsp;func)</PRE>Create a generator from a function, which is passed the previous value and should return the next value. The initial value will be a default-initialized <tt>TYPE</tt> and the result of first generation will be the result of invoking <tt>func</tt> on that default-initialized value. To specify the initial value, use generateFrom.<br>
+<br> eg: <tt>Functional.generator((integer i)->i+1)</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
@@ -228,14 +267,20 @@
 <DT>
 <B>Returns:</B>
 </DT>
-<DD>A generator for <tt>TYPE</tt>.</DD>
+<DD>A generator for <tt>TYPE</tt>, wrapped in a Functional.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.generator&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
-<A NAME="generateFrom()"></A>
-<H3>generateFrom</H3>
+<A NAME="generatorFrom()"></A>
+<H3>generatorFrom</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>generateFrom</B>(any&nbsp;start,&nbsp;any&nbsp;func)</PRE>Create a generator from a function, which is passed the previous value and should return the next value.<br>
-<br> eg: <tt>Functional.generate(100, (integer i)->i+1)</tt><DL>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;static <B>generatorFrom</B>(any&nbsp;start,&nbsp;any&nbsp;func)</PRE>Create a generator from a function, which is passed the previous value and should return the next value.<br>
+<br> eg: <tt>Functional.generatorFrom(100, (integer i)->i+1)</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
@@ -248,19 +293,28 @@
 <DT>
 <B>Returns:</B>
 </DT>
-<DD>A generator for <tt>TYPE</tt>.</DD>
+<DD>A generator for <tt>TYPE</tt>, wrapped in a functional.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.generator&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
+<A NAME="get()"></A>
+<H3>get</H3>
+<PRE>any&nbsp;<B>get</B>()</PRE>Return the wrapped container.<HR>
 <A NAME="map()"></A>
 <H3>map</H3>
-<PRE>integer&nbsp;static <B>map</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence, a dictionary or a generator and maps the contents using a function.<br>
-<br> eg: <tt>Functional.map(numbers, (integer i)->i*2)</tt><br>
-<br> Specifically, given: <ul> <li><tt>sequence&lt;TYPEA&gt; container</tt> and <tt>action&lt;TYPEA&gt; returns TYPEB func</tt> will return <tt>sequence&lt;TYPEB&gt;</tt> containing the result of running <tt>func</tt> on all the elements in <tt>container</tt>.</li> <li><tt>dictionary&lt;KEYTYPE,VALUETYPEA&gt; container</tt> and <tt>action&lt;KEYTYPE,VALUETYPEA&gt; returns VALUETYPEB func</tt> will return <tt>dictionary&lt;KEYTYPE,VALUETYPEB&gt;</tt> containing the keys from <tt>container</tt> with the values being the result of running <tt>func</tt>.</li> <li>A generator returning <tt>TYPEA</tt> and <tt>action&lt;TYPEA&gt; returns TYPEB func</tt> will return a generator returning <tt>TYPEB</tt> where each item is the corresponding item from the original generator after running <tt>func</tt>.</li> </ul><DL>
+<PRE>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;<B>map</B>(any&nbsp;func)</PRE>Maps the contents using a function.<br>
+<br> Works on dictionary, sequence or generator.<br>
+<br> eg: <tt>numbers.map((integer i)->i*2)</tt><br>
+<br> Semantics are as <tt>Fn.map</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
-<DD>
-<tt>container</tt>&nbsp;-&nbsp;A sequence, dictionary or generator.</DD>
 <DD>
 <tt>func</tt>&nbsp;-&nbsp;A function or lambda from old value type to new value type.</DD>
 </DL>
@@ -270,36 +324,17 @@
 </DT>
 <DD>The container with all the values run through func.</DD>
 </DL>
-<HR>
-<A NAME="mul()"></A>
-<H3>mul</H3>
-<PRE>any&nbsp;static <B>mul</B>(any&nbsp;acc,&nbsp;any&nbsp;i)</PRE>Action for multiplying together the values in a sequence or generator of integer, float or decimal using accumulate or reduce.<br>
-<br> eg: <tt>integer product := Functional.reduce(numbers, Functional.mul);</tt><DL>
+<DL>
 <DT>
-<B>Parameters:</B>
+<B>See Also:</B>
 </DT>
-<DD>
-<tt>acc</tt>
-</DD>
-<DD>
-<tt>i</tt>
-</DD>
-</DL>
-<HR>
-<A NAME="odd()"></A>
-<H3>odd</H3>
-<PRE>boolean&nbsp;static <B>odd</B>(integer&nbsp;i)</PRE>A predicate which returns true if the argument is odd.<DL>
-<DT>
-<B>Parameters:</B>
-</DT>
-<DD>
-<tt>i</tt>
-</DD>
+<DD>Fn.map&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <A NAME="range()"></A>
 <H3>range</H3>
-<PRE>sequence&lt;integer&gt;&nbsp;static <B>range</B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</PRE>Returns a range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.<DL>
+<PRE>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;static <B>range</B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</PRE>Returns a Functional range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.<DL>
 <DT>
 <B>Parameters:</B>
 </DT>
@@ -313,17 +348,22 @@
 <tt>stride</tt>
 </DD>
 </DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.range&nbsp;-&nbsp;</DD>
+</DL>
 <HR>
 <A NAME="reduce()"></A>
 <H3>reduce</H3>
-<PRE>any&nbsp;static <B>reduce</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence or a dictionary and accumulates all of the values using an accumulator function, returning the final result.<br>
-<br> eg: <tt>Functional.reduce(numbers, (integer a, integer i)->a+i)</tt><br>
-<br> Specifically, given: <ul> <li><tt>sequence&lt;TYPEA&gt; container</tt> and <tt>action&lt;TYPEB,TYPEA&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each value, retaining <tt>TYPEB</tt> each time.</li> <li><tt>dictionary&lt;KEYTYPE,VALUETYPE&gt; container</tt> and <tt>action&lt;TYPEB,KEYTYPE,VALUETYPE&gt; returns TYPEB func</tt> will return the final <tt>TYPEB</tt> after calling <tt>func</tt> on each key and value, retaining <tt>TYPEB</tt> each time.</li> </ul><DL>
+<PRE>any&nbsp;<B>reduce</B>(any&nbsp;func)</PRE>Accumulates all of the contents using an accumulator function, returning the final result.<br>
+<br> Works on a sequence or a dictionary. The result is the actual value, not a Functional, since it's no longer a container.<br>
+<br> eg: <tt>numbers.reduce((integer a, integer i)->a+i)</tt><br>
+<br> Semantics are as <tt>Fn.reduce</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
-<DD>
-<tt>container</tt>&nbsp;-&nbsp;A sequence or dictionary.</DD>
 <DD>
 <tt>func</tt>&nbsp;-&nbsp;An accumulator function or lambda.</DD>
 </DL>
@@ -333,11 +373,17 @@
 </DT>
 <DD>The final result of the accumulator function.</DD>
 </DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.reduce&nbsp;-&nbsp;</DD>
+</DL>
 <HR>
 <A NAME="repeat()"></A>
 <H3>repeat</H3>
 <PRE>
-<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A>&nbsp;static <B>repeat</B>(any&nbsp;item)</PRE>Repeats the given element forever.<DL>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;static <B>repeat</B>(any&nbsp;item)</PRE>Repeats the given element forever.<DL>
 <DT>
 <B>Parameters:</B>
 </DT>
@@ -348,12 +394,19 @@
 <DT>
 <B>Returns:</B>
 </DT>
-<DD>A generator which returns item over and over again.</DD>
+<DD>A generator which returns item over and over again, wrapped in a Functional.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.repeat&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <A NAME="sequenceOf()"></A>
 <H3>sequenceOf</H3>
-<PRE>any&nbsp;static <B>sequenceOf</B>(any&nbsp;item,&nbsp;integer&nbsp;n)</PRE>Returns a sequence containing the given item the given number of times.<DL>
+<PRE>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;static <B>sequenceOf</B>(any&nbsp;item,&nbsp;integer&nbsp;n)</PRE>Returns a sequence containing the given item the given number of times.<DL>
 <DT>
 <B>Parameters:</B>
 </DT>
@@ -366,18 +419,24 @@
 <DT>
 <B>Returns:</B>
 </DT>
-<DD>A <tt>sequence&lt;ITEMTYPE&gt;</tt> with <tt>n</tt> <tt>item</tt>s in it.</DD>
+<DD>A <tt>sequence&lt;ITEMTYPE&gt;</tt> with <tt>n</tt> <tt>item</tt>s in it, wrapped in a Functional.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.sequenceOf&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <A NAME="slice()"></A>
 <H3>slice</H3>
-<PRE>any&nbsp;static <B>slice</B>(any&nbsp;container,&nbsp;integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</PRE>Takes either a sequence or a generator and returns a given sub-range as a finite sequence. If it is passed a generator, it will invoke the generator sufficient times immediately to satisfy the slice.<br>
-<br> eg: <tt>Functional.slice(numbers, 5, 20, 2)</tt><DL>
+<PRE>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;<B>slice</B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</PRE>Returns a given sub-range as a finite sequence.<br>
+<br> Works on sequence or generator. If it is a generator, it will invoke the generator sufficient times immediately to satisfy the slice.<br>
+<br> eg: <tt>numbers.slice(5, 20, 2)</tt><DL>
 <DT>
 <B>Parameters:</B>
 </DT>
-<DD>
-<tt>container</tt>&nbsp;-&nbsp;A <tt>sequence&lt;TYPE&gt;</tt> or generator which produces <tt>TYPE</tt>.</DD>
 <DD>
 <tt>start</tt>&nbsp;-&nbsp;The first item to return.</DD>
 <DD>
@@ -389,22 +448,13 @@
 <DT>
 <B>Returns:</B>
 </DT>
-<DD>A <tt>sequence&lt;TYPE&gt;</tt> containing the selected values from <tt>container</tt></DD>
+<DD>A Functional containing the selected range of values.</DD>
 </DL>
-<HR>
-<A NAME="sum()"></A>
-<H3>sum</H3>
-<PRE>any&nbsp;static <B>sum</B>(any&nbsp;acc,&nbsp;any&nbsp;i)</PRE>Action for adding up a sequence or generator of integer, float or decimal using accumulate or reduce.<br>
-<br> eg: <tt>integer sum := Functional.reduce(numbers, Functional.sum);</tt><DL>
+<DL>
 <DT>
-<B>Parameters:</B>
+<B>See Also:</B>
 </DT>
-<DD>
-<tt>acc</tt>
-</DD>
-<DD>
-<tt>i</tt>
-</DD>
+<DD>Fn.slice&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <HR>
@@ -426,7 +476,7 @@
 <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;
               </TD><TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1"><A HREF="../../..//com/apamax/functional/package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;
               </TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT>&nbsp;
-                </A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1" WIDTH="100%" ALIGN="RIGHT"><FONT CLASS="NavBarFont1"><B>EPL functional operators</B></FONT></TD>
+                </A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1" WIDTH="100%" ALIGN="RIGHT"><FONT CLASS="NavBarFont1"><B>Apama EPL Functional Operators</B></FONT></TD>
 </TR>
 </TABLE>
 </TD><TD ALIGN="right" VALIGN="top" ROWSPAN="3"><EM></EM></TD>
