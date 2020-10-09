@@ -835,8 +835,21 @@ event Fn
 	static action combine(sequence<any> args) returns any {} */
 	/** TODO - zipfn with combine as the fn
 	static action zip(any containerA, any containerB) returns Generator {} */
-	/** TODO - consume n records from generator, returning it
-	static action consume(any generator, integer n) returns any {} */
+	/** Consume a given number of items from a generator and discard them.
+	   @param generator The generator to step.
+	   @param n The number of times to step it.
+	   @returns a reference to the original generator, stepped n times.
+	*/
+	static action consume(any generator, integer n) returns any
+	{
+		action<sequence<any>> returns any generate := generator.getAction("generate").getGenericAction();
+		sequence<any> args := new sequence<any>;
+		while n > 0 {
+			any _ := generate(args);
+			n := n - 1;
+		}
+		return generator;
+	}
 	/** TODO - counts the number of times a predicate is true
 	static action quantify(any container, any pred) returns integer {} */
 	/** TODO - concatenates two sequences
@@ -985,6 +998,19 @@ event Functional
 	*/
 	action generate() returns any { return Util.getGenericAction(container.getAction("generate"))(new sequence<any>); }
 	
+	/** Consume a given number of items from the contained generator and discard them.
+	
+	  Only works on generators.
+	  
+	  @param n The number of times to step the generator.
+	  @returns This Functional operator with the generator stepped n times.
+	*/
+	action consume(integer n) returns Functional
+	{
+		any _ := Fn.consume(container, n);
+		return self;
+	}
+
 	/**
 	  Return the wrapped container.
     */

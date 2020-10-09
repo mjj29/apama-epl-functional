@@ -99,6 +99,8 @@ monitor TestFn {
 		Asserts.assertEquals("generate slice", ncows,  [8, 10]);
 		sequence<string> ss := <sequence<string>> Fn.slice(["a", "b", "c", "d", "e", "f", "g"], 2, -1, 3);
 		Asserts.assertEquals("sequence slice", ss, ["c", "f"]);
+
+		Asserts.assertEquals("consume", (<Generator>Fn.consume(Fn.count(), 5)).generate(), 5);
 	}
 	action testcustom()
 	{

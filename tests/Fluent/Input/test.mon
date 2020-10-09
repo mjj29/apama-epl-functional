@@ -82,6 +82,8 @@ monitor TestFn {
 
 		Asserts.assertEquals("generate slice", f.slice(1,5,2).get(),  [8, 10]);
 		Asserts.assertEquals("sequence slice", Functional(["a", "b", "c", "d", "e", "f", "g"]).slice(2, -1, 3).get(), ["c", "f"]);
+
+		Asserts.assertEquals("consume", Functional.count().consume(5).generate(), 5);
 	}
 	action testcustom()
 	{
