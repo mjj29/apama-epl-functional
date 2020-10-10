@@ -22,6 +22,7 @@ monitor TestFn {
 		testcustom();
 		testaccumulate();
 		testargmap();
+		testquantify();
 	}
 	action testmap()
 	{
@@ -117,6 +118,12 @@ monitor TestFn {
 		Asserts.assertEquals("argmap single gen", Functional.count().argmap(Fn.partial(Fn.mul,2)).slice(0, 3, 1).get(), [0,2,4]);
 		Asserts.assertEquals("argmap multiple seq", Functional([[1,2],[3,4],[5,6]]).argmap(Fn.sum).slice(0, 3, 1).get(), [3,7,11]);
 	}
+	action testquantify()
+	{
+		Asserts.assertEquals("quantify array", Functional([1,2,3,4,5]).quantify(Fn.even), 2);
+		Asserts.assertEquals("quantify dict", Functional({1:1,2:2,3:3,4:4,5:5}).quantify(Fn.odd), 3);
+	}
+
 
 	action replaceWithCows(any a) returns string { return "cow"; }
 	action replaceValueWithCows(string k, any v) returns string { return "cow"; }
