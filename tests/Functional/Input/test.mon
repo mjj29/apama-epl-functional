@@ -31,6 +31,7 @@ monitor TestFn {
 		testfloatpredicates();
 		testargmap();
 		testboolpredicates();
+		testquantify();
 	}
 	action testmap()
 	{
@@ -284,6 +285,11 @@ monitor TestFn {
 		Asserts.assertEquals("_any(t)", true, Fn._any([true]));
 		Asserts.assertEquals("_any([])", false, Fn._any(new sequence<boolean>));
 		Asserts.assertEquals("_any([<any>])", false, Fn._any(new sequence<any>));
+	}
+	action testquantify()
+	{
+		Asserts.assertEquals("quantify array", Fn.quantify([1,2,3,4,5], Fn.even), 2);
+		Asserts.assertEquals("quantify dict", Fn.quantify({1:1,2:2,3:3,4:4,5:5}, Fn.odd), 3);
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }

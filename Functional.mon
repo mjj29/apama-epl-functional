@@ -850,8 +850,28 @@ event Fn
 		}
 		return generator;
 	}
-	/** TODO - counts the number of times a predicate is true
-	static action quantify(any container, any pred) returns integer {} */
+	/** @private */
+	static action incrementIfTrue(action<sequence<any>> returns any pred, sequence<any> args, integer count, any value) returns integer
+	{
+		args[0] := value;
+		if <boolean>pred(args) {
+			return count+1;
+		} else {
+			return count;
+		}
+	}
+	/** Counts how many times a predicate is true for the values of a sequence or dictionary.
+
+	  eg: <tt>Fn.quantify(numbers, Fn.even)</tt>
+
+	  @param container A sequence or dictionary.
+	  @param pred An action<TYPE> returns boolean.
+	  @returns The number of values in the container for which the predicate returns true.
+	*/
+	static action quantify(any container, any pred) returns integer
+	{
+		return <integer>reduce(container, partial(incrementIfTrue, [<any>Util.getGenericAction(pred), [new any]]));
+	}
 	/** TODO - concatenates two sequences
 	static action concatseq(any seqA, any seqB) returns any {} */
 	/** TODO - pads sequence with n instances of value
@@ -860,7 +880,7 @@ event Fn
 	static action istrue(boolean b) returns boolean { return b; }
 	/** @private
 		Functor used to implement _all()  */
-	static action anyfalse(boolean acc, boolean b) returns boolean { 
+	static action anyfalse(boolean acc, boolean b) returns boolean {
 		return acc or not b; 
 	}
 
@@ -964,6 +984,17 @@ event Functional
 	action reduce(any func) returns any
 	{ return Fn.reduce(container, func); }
 	
+	/** Counts how many times a predicate is true for the values of a sequence or dictionary.
+	  Works on a sequence or a dictionary. The result is an actual value, not a Functional, since it's no longer a container.
+
+	  eg: <tt>numbers.quantify(Fn.even)</tt>
+
+	  @param pred An action<TYPE> returns boolean.
+	  @returns The number of values in the container for which the predicate returns true.
+	*/
+	action quantify(any pred) returns integer
+	{ return Fn.quantify(container, func); }
+
 	/** 
 	  Use the contents as a list of arguments with which to invoke a function.
 	
