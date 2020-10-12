@@ -41,7 +41,7 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | argmap | sequence or generator<br/>`action<TYPE...> returns NEWTYPE`|Fn: A new container of the same sort as the input container, but the type returned from the functor<br/>Functional: a new Functional|Each item in the input is treated as an argument, or sequence or arguments, for the functor. The result will be a container with the results of calling the functor on those arguments|
 | slice | sequence or generator<br/>Start offset (0+)<br/>End offset(0+, or -1 for the whole sequence)<br/>Distance to increment each time(1+)|Fn:A sequence containing the selected elements<br/>Functional: a new Functional|Selects a subset of a sequence, or generator. Immediately consumes enough of the generator to create a concrete sequence.|
 | consume | A generator<br/>The number of times to step it. | The generator stepped n times.|Steps a generator the given number of times, discarding the results.|
-| quantify | sequence or dictionary<br/>`action<TYPE> returns boolean`|The number of items in the sequence or dictionary for which the predicate returns true.|
+| quantify | sequence or dictionary<br/>`action<TYPE> returns boolean`|The number of items in the sequence or dictionary for which the predicate returns true.|Runs a predicate on each item in the container and counts how many times it returns true.|
 
 `Fn` also provides some predicates to use with `filter`:
 
