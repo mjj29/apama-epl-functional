@@ -9,11 +9,11 @@ This works with Apama 10.5 or later, and probably most of the earlier ones as we
 
 This library provides a selection of functional operations modelled similar to Python's `functools` or `itertools` libraries, for example filter, map and reduce. These operate on EPL container types (`sequence` and `dictionary`) and on generators provided by this library (see below). To help using these functional operators, there are also several functors and predicates provided within the library.
 
-There are two APIs for accessing the functional operators. Firstly, all of the operators are provided as static functions on the [`com.apamax.functional.Fn`](https://mjj29.github.io/apama-epl-functional/com/apamax/functional/Fn.html) type. Each of these functions takes a container as its first argument and returns a new container with the new contents as the result, in each case using an any as the type. For example, to filter a sequence of numbers for just even numbers:
+There are two APIs for accessing the functional operators. Firstly, all of the operators are provided as static functions on the [`com.apamax.functional.Fn`](https://mjj29.github.io/apama-epl-functional/com/apamax/functional/Fn.html) type. Each of these functions takes a container as its first argument and returns a new container with the new contents as the result, in each case using an `any` as the type. For example, to filter a sequence of numbers for just even numbers:
 
 	sequence<integer> evens := <sequence<integer>> Fn.filter(numbers, Fn.even);
 
-This example also shows the use of one of the functors, also provided on the `Fn` event. You can use any action or action variable with the signature `action<integer> returns boolean`, or (in later versions of Apama) a matching lambda. You can combine several of these operations into a pipeline:
+This example also shows the use of one of the functors, also provided on the `Fn` event. You can use an action or action variable with the signature `action<integer> returns boolean`, or (in later versions of Apama) a matching lambda. Some of these are provided within the library, but you can also write your own. You can combine several of these operations into a pipeline:
 
 	integer evenSum := <integer> Fn.reduce(Fn.filter(numbers, Fn.even), Fn.sum);
 
