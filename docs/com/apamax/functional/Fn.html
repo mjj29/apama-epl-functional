@@ -32,7 +32,7 @@
 <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;
               </TD><TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1"><A HREF="../../..//com/apamax/functional/package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;
               </TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT>&nbsp;
-                </A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1" WIDTH="100%" ALIGN="RIGHT"><FONT CLASS="NavBarFont1"><B>Apama EPL Functional Operators</B></FONT></TD>
+                </A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1" WIDTH="100%" ALIGN="RIGHT"></TD>
 </TR>
 </TABLE>
 </TD><TD ALIGN="right" VALIGN="top" ROWSPAN="3"><EM></EM></TD>
@@ -47,7 +47,13 @@
 <BR>Event Fn</H2>
 <HR>Provides functional operations on EPL containers, such as map, reduce, filter and slice.<br>
 <br> Also provides generators which can be used as input to the functional operations.<br>
-<br> eg: <tt>Fn.slice(Fn.map(Fn.filter(Fn.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);</tt><HR>
+<br> eg: <tt>Fn.slice(Fn.map(Fn.filter(Fn.count(), (integer i)->i%2=0), (integer i)->i*2), 2, 8, 2);</tt><DL>
+<DT>
+<B>Listens:</B>
+</DT>
+<DD>any&nbsp;-&nbsp;</DD>
+</DL>
+<HR>
 <A NAME="action_summary"></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
@@ -84,9 +90,19 @@
 <br>Iterates through a sequence, or a generator and uses the result as a list of arguments with which to invoke a function. These inner sequences will be treated as a list of arguments to the given function, or a single argument to that function. Each generated item will be the result of calling func with the next set of arguments.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#callAction()">callAction</A></B>(string&nbsp;actionName,&nbsp;sequence&lt;any&gt;&nbsp;args,&nbsp;any&nbsp;value)</CODE>
+<br>
+<br>Functor to call the named action on the value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;string</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#concat()">concat</A></B>(string&nbsp;acc,&nbsp;string&nbsp;i)</CODE>
 <br>
 <br>Action which concatenates strings using accumulate or reduce.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;any</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#consume()">consume</A></B>(any&nbsp;generator,&nbsp;integer&nbsp;n)</CODE>
+<br>
+<br>Consume a given number of items from a generator and discard them.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Generator.html" title="type in com.apamax.functional">com.apamax.functional.Generator</A></CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#count()">count</A></B>()</CODE>
@@ -129,6 +145,11 @@
 <br>A predicate which returns true if the argument is true.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;sequence&lt;listener&gt;</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#listenForAnyOf()">listenForAnyOf</A></B>(any&nbsp;seq,&nbsp;string&nbsp;typeName,&nbsp;string&nbsp;fieldName,&nbsp;dictionary&lt;string,&nbsp;any&gt;&nbsp;otherFields,&nbsp;any&nbsp;arrivedAction)</CODE>
+<br>
+<br>Takes a sequence of values and starts a listener one for each of them, with an action to call if any of those events arrive.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;integer</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#map()">map</A></B>(any&nbsp;container,&nbsp;any&nbsp;func)</CODE>
 <br>
 <br>Takes either a sequence, a dictionary or a generator and maps the contents using a function.</TD>
@@ -157,6 +178,11 @@
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;boolean</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#positive()">positive</A></B>(any&nbsp;i)</CODE>
 <br>
 <br>A predicate which returns true if the argument is positive (not including 0).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;integer</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#quantify()">quantify</A></B>(any&nbsp;container,&nbsp;any&nbsp;pred)</CODE>
+<br>
+<br>Counts how many times a predicate is true for the values of a sequence or dictionary.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;sequence&lt;integer&gt;</CODE></FONT></TD><TD><CODE>static </CODE><CODE><B><A HREF="Fn.html#range()">range</A></B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
@@ -299,6 +325,20 @@
 <tt>func</tt>&nbsp;-&nbsp;A function which takes each item in container and returns a result.</DD>
 </DL>
 <HR>
+<A NAME="callAction()"></A>
+<H3>callAction</H3>
+<PRE>any&nbsp;static <B>callAction</B>(string&nbsp;actionName,&nbsp;sequence&lt;any&gt;&nbsp;args,&nbsp;any&nbsp;value)</PRE>Functor to call the named action on the value.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>actionName</tt>&nbsp;-&nbsp;The name of the action to call.</DD>
+<DD>
+<tt>args</tt>&nbsp;-&nbsp;The arguments to call the action with.</DD>
+<DD>
+<tt>value</tt>&nbsp;-&nbsp;The object to call the action on.</DD>
+</DL>
+<HR>
 <A NAME="concat()"></A>
 <H3>concat</H3>
 <PRE>string&nbsp;static <B>concat</B>(string&nbsp;acc,&nbsp;string&nbsp;i)</PRE>Action which concatenates strings using accumulate or reduce.<DL>
@@ -311,6 +351,24 @@
 <DD>
 <tt>i</tt>
 </DD>
+</DL>
+<HR>
+<A NAME="consume()"></A>
+<H3>consume</H3>
+<PRE>any&nbsp;static <B>consume</B>(any&nbsp;generator,&nbsp;integer&nbsp;n)</PRE>Consume a given number of items from a generator and discard them.<DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>generator</tt>&nbsp;-&nbsp;The generator to step.</DD>
+<DD>
+<tt>n</tt>&nbsp;-&nbsp;The number of times to step it.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>a reference to the original generator, stepped n times.</DD>
 </DL>
 <HR>
 <A NAME="count()"></A>
@@ -425,6 +483,26 @@
 </DD>
 </DL>
 <HR>
+<A NAME="listenForAnyOf()"></A>
+<H3>listenForAnyOf</H3>
+<PRE>sequence&lt;listener&gt;&nbsp;static <B>listenForAnyOf</B>(any&nbsp;seq,&nbsp;string&nbsp;typeName,&nbsp;string&nbsp;fieldName,&nbsp;dictionary&lt;string,&nbsp;any&gt;&nbsp;otherFields,&nbsp;any&nbsp;arrivedAction)</PRE>Takes a sequence of values and starts a listener one for each of them, with an action to call if any of those events arrive.<br>
+<br> Equivalent to writing:<br>
+<br> <tt>on all TypeName(fieldName=seq[0], otherfields=...) or TypeName(fieldName=seq[0], otherfields=...) or ... { arrivedAction(t); }</tt><DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>seq</tt>&nbsp;-&nbsp;sequence<any> of different values to listen to.</DD>
+<DD>
+<tt>typeName</tt>&nbsp;-&nbsp;The event type to listen for.</DD>
+<DD>
+<tt>fieldName</tt>&nbsp;-&nbsp;The name of the field for the values.</DD>
+<DD>
+<tt>otherFields</tt>&nbsp;-&nbsp;Names and values of other fields which will be the same for each listener.</DD>
+<DD>
+<tt>arrivedAction</tt>&nbsp;-&nbsp;The action to call if any matching events arrive.</DD>
+</DL>
+<HR>
 <A NAME="map()"></A>
 <H3>map</H3>
 <PRE>integer&nbsp;static <B>map</B>(any&nbsp;container,&nbsp;any&nbsp;func)</PRE>Takes either a sequence, a dictionary or a generator and maps the contents using a function.<br>
@@ -504,6 +582,25 @@
 <DD>
 <tt>i</tt>
 </DD>
+</DL>
+<HR>
+<A NAME="quantify()"></A>
+<H3>quantify</H3>
+<PRE>integer&nbsp;static <B>quantify</B>(any&nbsp;container,&nbsp;any&nbsp;pred)</PRE>Counts how many times a predicate is true for the values of a sequence or dictionary.<br>
+<br> eg: <tt>Fn.quantify(numbers, Fn.even)</tt><DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>container</tt>&nbsp;-&nbsp;A sequence or dictionary.</DD>
+<DD>
+<tt>pred</tt>&nbsp;-&nbsp;An action<TYPE> returns boolean.</DD>
+</DL>
+<DL>
+<DT>
+<B>Returns:</B>
+</DT>
+<DD>The number of values in the container for which the predicate returns true.</DD>
 </DL>
 <HR>
 <A NAME="range()"></A>
@@ -668,7 +765,7 @@
 <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;
               </TD><TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1"><A HREF="../../..//com/apamax/functional/package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;
               </TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1"><A HREF="../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT>&nbsp;
-                </A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1" WIDTH="100%" ALIGN="RIGHT"><FONT CLASS="NavBarFont1"><B>Apama EPL Functional Operators</B></FONT></TD>
+                </A></TD><TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1" WIDTH="100%" ALIGN="RIGHT"></TD>
 </TR>
 </TABLE>
 </TD><TD ALIGN="right" VALIGN="top" ROWSPAN="3"><EM></EM></TD>
