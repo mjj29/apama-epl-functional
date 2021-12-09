@@ -4,6 +4,14 @@ using com.apamax.functional.Generator;
 using com.apamax.functional.Util;
 using com.apamax.functional.Functional;
 
+event TestEvent
+{
+	integer id;
+	string val; 
+	string foo;
+}
+
+
 /** This monitor is responsible for ...  */
 monitor TestFn {
 
@@ -23,6 +31,8 @@ monitor TestFn {
 		testaccumulate();
 		testargmap();
 		testquantify();
+		testlistenforany();
+		testwaitforall();
 	}
 	action testmap()
 	{
@@ -124,6 +134,57 @@ monitor TestFn {
 		Asserts.assertEquals("quantify dict", Functional({1:1,2:2,3:3,4:4,5:5}).quantify(Fn.odd), 3);
 	}
 
+	action arrivedFn(sequence<string> results, TestEvent e) {
+		results.append(e.val);
+	}
+
+	action testlistenforany()
+	{
+		sequence<integer> ids := [1, 2, 3];
+		sequence<string> results := new sequence<string>;
+		sequence<listener> ls := <sequence<listener>> Functional(ids).listenForAnyOf("com.apamax.test.TestEvent", "id", {"foo":<any>"bar"}, Fn.partial(arrivedFn, [results])).get();
+		Asserts.assertEquals("listenAny listeners", ls.size(), 3);
+		Asserts.assertEquals("listenAny emptylisteners", Fn._any(Fn.map(ls, Fn.partial(Fn.callAction, [<any>"empty", new sequence<any>]))), false);
+		on TestEvent(id=6) {
+			Asserts.assertEquals("listenAny results", results, ["good1", "good2", "good3", "good1"]);
+			listener l;
+			for l in ls {
+				l.quit();
+			}
+			Asserts.assertEquals("listenAny emptylisteners 2", Fn._all(Fn.map(ls, Fn.partial(Fn.callAction, [<any>"empty", new sequence<any>]))), true);
+		}
+
+
+		route TestEvent(1, "good1", "bar");
+		route TestEvent(2, "good2", "bar");
+		route TestEvent(3, "good3", "bar");
+		route TestEvent(1, "good1", "bar");
+		route TestEvent(4, "wrongId", "bar");
+		route TestEvent(3, "wrongFoo", "baz");
+		route TestEvent(6, "checkResults", "");
+	}
+
+	action waitCompleted(boolean expected)
+	{
+		Asserts.assertEquals("waitCompleted "+expected.toString(), expected, true);
+	}
+
+	action waitTimeout(boolean expected, sequence<any> missing)
+	{
+		Asserts.assertEquals("waitTimeout "+expected.toString(), expected, true);
+		Asserts.assertEquals("waitTimeout missing", missing, [<any>40]);
+	}
+
+	action testwaitforall()
+	{
+		sequence<integer> ids := [10, 20, 30];
+		sequence<integer> idsTimeout := [10, 20, 30, 40];
+		Functional(ids).waitForAllCompleted("com.apamax.test.TestEvent", "id", 5., Fn.partial(waitCompleted, true), Fn.partial(waitTimeout, false));
+		Functional(idsTimeout).waitForAllCompleted("com.apamax.test.TestEvent", "id", 5., Fn.partial(waitCompleted, false), Fn.partial(waitTimeout, true));
+		route TestEvent(10, "", "");
+		route TestEvent(20, "", "");
+		route TestEvent(30, "", "");
+	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }
 	action replaceValueWithCows(string k, any v) returns string { return "cow"; }

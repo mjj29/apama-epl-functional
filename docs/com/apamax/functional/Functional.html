@@ -105,6 +105,11 @@
 <br>Return the wrapped container.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#listenForAnyOf()">listenForAnyOf</A></B>(string&nbsp;typeName,&nbsp;string&nbsp;fieldName,&nbsp;dictionary&lt;string,&nbsp;any&gt;&nbsp;otherFields,&nbsp;any&nbsp;arrivedAction)</CODE>
+<br>
+<br>Takes a sequence of values and starts a listener one for each of them, with an action to call if any of those events arrive.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#map()">map</A></B>(any&nbsp;func)</CODE>
 <br>
 <br>Maps the contents using a function.</TD>
@@ -138,6 +143,11 @@
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A></CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#slice()">slice</A></B>(integer&nbsp;start,&nbsp;integer&nbsp;end,&nbsp;integer&nbsp;stride)</CODE>
 <br>
 <br>Returns a given sub-range as a finite sequence.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1"><CODE>&nbsp;void</CODE></FONT></TD><TD><CODE></CODE><CODE><B><A HREF="Functional.html#waitForAllCompleted()">waitForAllCompleted</A></B>(string&nbsp;typeName,&nbsp;string&nbsp;fieldName,&nbsp;float&nbsp;timeout,&nbsp;any&nbsp;onCompleted,&nbsp;any&nbsp;onTimeout)</CODE>
+<br>
+<br>Wait for completion of several asynchronous tasks.</TD>
 </TR>
 </TABLE>&nbsp;<A NAME="action_detail"></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -333,6 +343,31 @@
 <A NAME="get()"></A>
 <H3>get</H3>
 <PRE>any&nbsp;<B>get</B>()</PRE>Return the wrapped container.<HR>
+<A NAME="listenForAnyOf()"></A>
+<H3>listenForAnyOf</H3>
+<PRE>
+<A HREF="../../../com/apamax/functional/Functional.html" title="type in com.apamax.functional">com.apamax.functional.Functional</A>&nbsp;<B>listenForAnyOf</B>(string&nbsp;typeName,&nbsp;string&nbsp;fieldName,&nbsp;dictionary&lt;string,&nbsp;any&gt;&nbsp;otherFields,&nbsp;any&nbsp;arrivedAction)</PRE>Takes a sequence of values and starts a listener one for each of them, with an action to call if any of those events arrive.<br>
+<br> Equivalent to writing:<br>
+<br> <tt>on all TypeName(fieldName=seq[0], otherfields=...) or TypeName(fieldName=seq[1], otherfields=...) or ... { arrivedAction(t); }</tt><DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>typeName</tt>&nbsp;-&nbsp;The event type to listen for.</DD>
+<DD>
+<tt>fieldName</tt>&nbsp;-&nbsp;The name of the field for the values.</DD>
+<DD>
+<tt>otherFields</tt>&nbsp;-&nbsp;Names and values of other fields which will be the same for each listener.</DD>
+<DD>
+<tt>arrivedAction</tt>&nbsp;-&nbsp;The action to call if any matching events arrive.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.listenForAnyOf&nbsp;-&nbsp;</DD>
+</DL>
+<HR>
 <A NAME="map()"></A>
 <H3>map</H3>
 <PRE>
@@ -500,6 +535,33 @@
 <B>See Also:</B>
 </DT>
 <DD>Fn.slice&nbsp;-&nbsp;</DD>
+</DL>
+<HR>
+<A NAME="waitForAllCompleted()"></A>
+<H3>waitForAllCompleted</H3>
+<PRE>void&nbsp;<B>waitForAllCompleted</B>(string&nbsp;typeName,&nbsp;string&nbsp;fieldName,&nbsp;float&nbsp;timeout,&nbsp;any&nbsp;onCompleted,&nbsp;any&nbsp;onTimeout)</PRE>Wait for completion of several asynchronous tasks.<br>
+<br> Equivalent to writing:<br>
+<br> <tt>on TypeName(fieldName=seq[0]) and TypeName(fieldName=seq[1]) and ... and not wait(timeout) { onCompleted(); }</tt><DL>
+<DT>
+<B>Parameters:</B>
+</DT>
+<DD>
+<tt>typeName</tt>&nbsp;-&nbsp;The type of event to wait for.</DD>
+<DD>
+<tt>fieldName</tt>&nbsp;-&nbsp;The field which will contain the values.</DD>
+<DD>
+<tt>timeout</tt>
+</DD>
+<DD>
+<tt>onCompleted</tt>&nbsp;-&nbsp;an action<> to be called if all the events arrive within the timeout.</DD>
+<DD>
+<tt>onTimeout</tt>&nbsp;-&nbsp;an action<sequence<any>> to be called if some of the events don't arrive within the timeout. The argument will be all the values which did not arrive.</DD>
+</DL>
+<DL>
+<DT>
+<B>See Also:</B>
+</DT>
+<DD>Fn.waitForAllCompleted&nbsp;-&nbsp;</DD>
 </DL>
 <HR>
 <HR>
