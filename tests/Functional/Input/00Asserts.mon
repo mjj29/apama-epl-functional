@@ -28,12 +28,16 @@ event Asserts
 	{
 		if not equalsWithin(a, b, 0.0001) {
 			log "assert fail "+name+": "+a.valueToString()+" != "+b.valueToString() at ERROR;
+		} else {
+			log "assert pass "+name+": "+a.valueToString()+" = "+b.valueToString() at INFO;
 		}
 	}
 	static action assert(string name, boolean a)
 	{
 		if not a {
 			log "assert fail "+name at ERROR;
+		} else {
+			log "assert pass "+name at INFO;
 		}
 	}
 }

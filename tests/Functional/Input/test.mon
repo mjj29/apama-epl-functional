@@ -40,6 +40,7 @@ monitor TestFn {
 		testboolpredicates();
 		testquantify();
 		testlistenforany();
+		testwaitforall();
 	}
 	action testmap()
 	{
@@ -304,11 +305,16 @@ monitor TestFn {
 		results.append(e.val);
 	}
 
+	action arrivedFnThrows(TestEvent e) {
+		throw com.apama.exceptions.Exception("Exception from arrivedFnThrows", "testException");
+	}
+
 	action testlistenforany()
 	{
 		sequence<integer> ids := [1, 2, 3];
 		sequence<string> results := new sequence<string>;
 		sequence<listener> ls := Fn.listenForAnyOf(ids, "com.apamax.test.TestEvent", "id", {"foo":<any>"bar"}, Fn.partial(arrivedFn, [results]));
+		sequence<listener> ls2 := Fn.listenForAnyOf(ids, "com.apamax.test.TestEvent", "id", new dictionary<string, any>, arrivedFnThrows);
 		Asserts.assertEquals("listenAny listeners", ls.size(), 3);
 		Asserts.assertEquals("listenAny emptylisteners", Fn._any(Fn.map(ls, Fn.partial(Fn.callAction, [<any>"empty", new sequence<any>]))), false);
 		on TestEvent(id=6) {
@@ -317,8 +323,12 @@ monitor TestFn {
 			for l in ls {
 				l.quit();
 			}
+			for l in ls2 {
+				l.quit();
+			}
 			Asserts.assertEquals("listenAny emptylisteners 2", Fn._all(Fn.map(ls, Fn.partial(Fn.callAction, [<any>"empty", new sequence<any>]))), true);
 		}
+
 
 		route TestEvent(1, "good1", "bar");
 		route TestEvent(2, "good2", "bar");
@@ -327,6 +337,34 @@ monitor TestFn {
 		route TestEvent(4, "wrongId", "bar");
 		route TestEvent(3, "wrongFoo", "baz");
 		route TestEvent(6, "checkResults", "");
+	}
+
+	action waitCompleted(boolean expected)
+	{
+		Asserts.assertEquals("waitCompleted "+expected.toString(), expected, true);
+	}
+
+	action waitTimeout(boolean expected, sequence<any> missing)
+	{
+		Asserts.assertEquals("waitTimeout "+expected.toString(), expected, true);
+		Asserts.assertEquals("waitTimeout missing", missing, [<any>40]);
+	}
+
+	action waitThrows() { 
+		throw com.apama.exceptions.Exception("Exception from waitThrows", "testException");
+	}
+
+	action testwaitforall()
+	{
+		sequence<integer> ids := [10, 20, 30];
+		sequence<integer> idsTimeout := [10, 20, 30, 40];
+		Fn.waitForAllCompleted(ids, "com.apamax.test.TestEvent", "id", 5., Fn.partial(waitCompleted, true), Fn.partial(waitTimeout, false));
+		Fn.waitForAllCompleted(idsTimeout, "com.apamax.test.TestEvent", "id", 5., Fn.partial(waitCompleted, false), Fn.partial(waitTimeout, true));
+		Fn.waitForAllCompleted(ids, "com.apamax.test.TestEvent", "id", 5., waitThrows, waitThrows);
+		Fn.waitForAllCompleted(idsTimeout, "com.apamax.test.TestEvent", "id", 5., waitThrows, waitThrows);
+		route TestEvent(10, "", "");
+		route TestEvent(20, "", "");
+		route TestEvent(30, "", "");
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }

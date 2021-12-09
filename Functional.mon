@@ -934,7 +934,11 @@ event Fn
 	{
 		otherFields[fieldName]:=value;
 		listener l := on all any(typeName=typeName, values=otherFields) as a {
-			any _ := arrivedAction([a]);
+			try {
+				any _ := arrivedAction([a]);
+			} catch(com.apama.exceptions.Exception e) {
+				log "Received exception from calling arrivedAction in listenForAnyOf: "+e.toString() at WARN;
+			}
 		}
 		return l;
 	}
@@ -953,7 +957,7 @@ event Fn
 
 		Equivalent to writing:
 
-		<tt>on all TypeName(fieldName=seq[0], otherfields=...) or TypeName(fieldName=seq[0], otherfields=...) or ... { arrivedAction(t); }</tt>
+		<tt>on all TypeName(fieldName=seq[0], otherfields=...) or TypeName(fieldName=seq[1], otherfields=...) or ... { arrivedAction(t); }</tt>
 
 		@param seq sequence<any> of different values to listen to.
 		@param typeName The event type to listen for.
@@ -967,11 +971,51 @@ event Fn
 	}
 
 	/**
-	  @private TODO
-	 */
-	static action waitForAllCompleted(any seq, string typename, string fieldName, integer timeout, any onCompleted, any onTimeout)
-	{
+	  Wait for completion of several asynchronous tasks.
+	  
+	  Equivalent to writing:
 
+	  <tt>on TypeName(fieldName=seq[0]) and TypeName(fieldName=seq[1]) and ... and not wait(timeout) { onCompleted(); }</tt>
+
+	  @param seq sequence<any> of values (typically IDs) to wait for.
+	  @param typeName The type of event to wait for.
+	  @param fieldName The field which will contain the values.
+	  @param The timeout to wait for all the values to arrive.
+	  @param onCompleted an action<> to be called if all the events arrive within the timeout.
+	  @param onTimeout an action<sequence<any>> to be called if some of the events don't arrive within the timeout. The argument will be all the values which did not arrive.
+	 */
+	static action waitForAllCompleted(any seq, string typeName, string fieldName, float timeout, any onCompleted, any onTimeout)
+	{
+		action<sequence<any>> returns any success := Util.getGenericAction(onCompleted);
+		action<sequence<any>> returns any failure := Util.getGenericAction(onTimeout);
+		sequence<any> values := Util.getGenericSequence(seq);
+		if values.size() = 0 {
+			any _ := success(new sequence<any>);
+      } else {
+			sequence<any> valuesRemaining := values.clone();
+         listener l1 := on wait(timeout) {
+				try {
+					any _ := failure([<any>valuesRemaining]);
+				} catch(com.apama.exceptions.Exception e) {
+					log "Received exception from calling onTimeout in waitForAllCompleted: "+e.toString() at WARN;
+				}
+         }
+         listener l2 := on all any(typeName=typeName) as f and not wait(timeout) {
+            integer idx := valuesRemaining.indexOf(<integer>f.getEntry(fieldName));
+            if idx >= 0 {
+               valuesRemaining.remove(idx);
+               if valuesRemaining.size() = 0 {
+                  l1.quit();
+                  l2.quit();
+						try {
+							any _ := success(new sequence<any>);
+						} catch(com.apama.exceptions.Exception e) {
+							log "Received exception from calling onCompleted in waitForAllCompleted: "+e.toString() at WARN;
+						}
+               }
+            }
+         }
+      }
 	}
 }
 

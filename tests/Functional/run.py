@@ -14,6 +14,9 @@ class PySysTest(BaseTest):
 			if test.endswith('.mon'):
 				corr.injectEPL(test)
 				corr.flush()
+
+		self.waitForGrep('correlator.log', 'Removed monitor com.apamax.test.TestFn')
+
 		corr.shutdown()
 
 	def validate(self):
