@@ -3,6 +3,13 @@ using com.apamax.functional.Fn;
 using com.apamax.functional.Generator;
 using com.apamax.functional.Util;
 
+event TestEvent
+{
+	integer id;
+	string val; 
+	string foo;
+}
+
 /** This monitor is responsible for ...  */
 monitor TestFn {
 
@@ -32,6 +39,7 @@ monitor TestFn {
 		testargmap();
 		testboolpredicates();
 		testquantify();
+		testlistenforany();
 	}
 	action testmap()
 	{
@@ -290,6 +298,35 @@ monitor TestFn {
 	{
 		Asserts.assertEquals("quantify array", Fn.quantify([1,2,3,4,5], Fn.even), 2);
 		Asserts.assertEquals("quantify dict", Fn.quantify({1:1,2:2,3:3,4:4,5:5}, Fn.odd), 3);
+	}
+
+	action arrivedFn(sequence<string> results, TestEvent e) {
+		results.append(e.val);
+	}
+
+	action testlistenforany()
+	{
+		sequence<integer> ids := [1, 2, 3];
+		sequence<string> results := new sequence<string>;
+		sequence<listener> ls := Fn.listenForAnyOf(ids, "com.apamax.test.TestEvent", "id", {"foo":<any>"bar"}, Fn.partial(arrivedFn, [results]));
+		Asserts.assertEquals("listenAny listeners", ls.size(), 3);
+		Asserts.assertEquals("listenAny emptylisteners", Fn._any(Fn.map(ls, Fn.partial(Fn.callAction, [<any>"empty", new sequence<any>]))), false);
+		on TestEvent(id=6) {
+			Asserts.assertEquals("listenAny results", results, ["good1", "good2", "good3", "good1"]);
+			listener l;
+			for l in ls {
+				l.quit();
+			}
+			Asserts.assertEquals("listenAny emptylisteners 2", Fn._all(Fn.map(ls, Fn.partial(Fn.callAction, [<any>"empty", new sequence<any>]))), true);
+		}
+
+		route TestEvent(1, "good1", "bar");
+		route TestEvent(2, "good2", "bar");
+		route TestEvent(3, "good3", "bar");
+		route TestEvent(1, "good1", "bar");
+		route TestEvent(4, "wrongId", "bar");
+		route TestEvent(3, "wrongFoo", "baz");
+		route TestEvent(6, "checkResults", "");
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }

@@ -926,6 +926,53 @@ event Fn
 		Return false iff none of the items in the sequence are true.  If seq is empty, returns false.
 	 */
 	static action _any(any seq) returns boolean { return <boolean> reduceFrom(false, seq, anytrue); }
+
+	/** @private
+	  Functor used to implement listenForAnyOf
+	 */
+	static action listenFor(string typeName, string fieldName, dictionary<string, any> otherFields, action<sequence<any>> returns any arrivedAction, any value) returns listener
+	{
+		otherFields[fieldName]:=value;
+		listener l := on all any(typeName=typeName, values=otherFields) as a {
+			any _ := arrivedAction([a]);
+		}
+		return l;
+	}
+	/** 
+		Functor to call the named action on the value.
+		@param actionName The name of the action to call.
+		@param args The arguments to call the action with.
+		@param value The object to call the action on.
+	*/
+	static action callAction(string actionName, sequence<any> args, any value) returns any
+	{
+		return value.getAction(actionName).getGenericAction()(args);
+	}
+	/**
+		Takes a sequence of values and starts a listener one for each of them, with an action to call if any of those events arrive.
+
+		Equivalent to writing:
+
+		<tt>on all TypeName(fieldName=seq[0], otherfields=...) or TypeName(fieldName=seq[0], otherfields=...) or ... { arrivedAction(t); }</tt>
+
+		@param seq sequence<any> of different values to listen to.
+		@param typeName The event type to listen for.
+		@param fieldName The name of the field for the values.
+		@param otherFields Names and values of other fields which will be the same for each listener.
+		@param arrivedAction The action to call if any matching events arrive.
+	 */
+	static action listenForAnyOf(any seq, string typeName, string fieldName, dictionary<string, any> otherFields, any arrivedAction) returns sequence<listener>
+	{
+		return <sequence<listener>> map(seq, partial(listenFor, [<any> typeName, fieldName, otherFields.clone(), Util.getGenericAction(arrivedAction)]));
+	}
+
+	/**
+	  @private TODO
+	 */
+	static action waitForAllCompleted(any seq, string typename, string fieldName, integer timeout, any onCompleted, any onTimeout)
+	{
+
+	}
 }
 
 /**
