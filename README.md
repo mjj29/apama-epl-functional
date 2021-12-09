@@ -65,10 +65,31 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | sum | integer, float or decimal | Add up all the values |
 | mul | integer, float or decimal | Calculate the product of the values |
 | concat | string | Concatenates all the strings |
+| callAction | any | Calls the named function with the given args on a value. Must be used with `Fn.partial` to provide function name and args. |
 
 ## Functional listeners
 
 `Fn` provides some actions which interact with events and listeners. These allow you to use a functional style of code to also listen for events.
+
+For examples of how you might use these where you might have wanted to write:
+
+	on all Event(f="val1") as e or all Event(f="val2") as e or ... { eventArrived(e); }
+
+However, you have a variable number of possible values, and they aren't in a contiguous range. With `Fn` you can write:
+
+	sequence<listeners> ls := Fn.listenForAnyOf(["val1", "val2"], "Event", "f", {}, eventArrived);
+	on Stop() {
+		any _ := Fn.map(ls, Fn.partial(callAction, "quit", []));
+	}
+
+Another common pattern is having an asynchronous process with a completed event. You have a similar issue listening to a variable number of processes. With `Fn` you can now write this:
+
+	on Completed(id=1) and Completed(id=2) and ... and not wait(TIMEOUTSECS) { onCompleted(); }
+	on wait(TIMEOUTSECS) and not (on Completed(id=1) and Completed(id=2) and ... ) { onTimeout(); }
+
+as:
+
+	Fn.waitForAllCompleted(sequenceIDs, "Completed", "id", TIMEOUTSECS, onCompleted, onTimeout);
 
 Here is a list of the event/listener actions on `Fn`.
 
