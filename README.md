@@ -66,6 +66,17 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | mul | integer, float or decimal | Calculate the product of the values |
 | concat | string | Concatenates all the strings |
 
+## Functional listeners
+
+`Fn` provides some actions which interact with events and listeners. These allow you to use a functional style of code to also listen for events.
+
+Here is a list of the event/listener actions on `Fn`.
+
+| Action | Arguments | Return | Description |
+| ------ | --------- | ------ | ----------- |
+| listenForAnyOf | Sequence of values<br/>Event type and field name<br/>Additional fields<br/>`action<Eventtype>` | `sequence<listener>` | Create multiple listeners one for each value in the sequence. Call the given action for each matching event which arrives |
+| waitForAllCompleted | Sequence of values<br/>Event type and field name<br/>timeout<br/>`action<>` on success and `action<sequence<any>>` on timeout | nothing | Take a list of values, wait for an event with each value to be received within a timeout. Call a success or timeout action |
+
 ## Generators
 
 The functional library also provides a concept of generators. Generators are objects which lazily calculate an infinite list. The simplest form of a generator is a current value and a functor which takes the previous value and calculates the next value. To get the next value you call the `generate` function, which steps the generator and returns the next value. You can use most of the functional operators above and they will return another generator which lazily evaluates the function each time you step the resulting generator. To create a generator you can use the `generator` static function on `Fn`:
