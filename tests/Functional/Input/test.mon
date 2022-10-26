@@ -41,6 +41,7 @@ monitor TestFn {
 		testquantify();
 		testlistenforany();
 		testwaitforall();
+		testgetallevents();
 	}
 	action testmap()
 	{
@@ -365,6 +366,30 @@ monitor TestFn {
 		route TestEvent(10, "", "");
 		route TestEvent(20, "", "");
 		route TestEvent(30, "", "");
+	}
+
+	action getAllCompleted(sequence<any> expected, boolean shouldBeCalled, sequence<any> actual)
+	{
+		Asserts.assertEquals("getAllCompleted "+expected.toString(), shouldBeCalled, true);
+		Asserts.assertEquals("getAllCompleted received", expected, actual);
+	}
+
+	action getAllTimeout(sequence<any> expected, boolean shouldBeCalled, sequence<any> actual)
+	{
+		Asserts.assertEquals("getAllTimeout "+expected.toString(), shouldBeCalled, true);
+		Asserts.assertEquals("getAllTimeout received", expected, actual);
+	}
+
+	action testgetallevents()
+	{
+		sequence<any> events := [<any>TestEvent(1000, "a", "a"), TestEvent(1000, "b", "b"), TestEvent(1000, "c", "c")];
+		Fn.getAllEvents("com.apamax.test.TestEvent", {"id":<any>1000}, "com.apamax.test.TestEvent", {"id":<any>2000}, 5., Fn.partial(getAllCompleted, [<any>events, true]), Fn.partial(getAllTimeout, [<any>events, false]));
+		Fn.getAllEvents("com.apamax.test.TestEvent", {"id":<any>1000}, "com.apamax.test.TestEvent", {"id":<any>3000}, 5., Fn.partial(getAllCompleted, [<any>events, false]), Fn.partial(getAllTimeout, [<any>events, true]));
+		any t;
+		for t in events {
+			route <TestEvent> t;
+		}
+		route TestEvent(2000, "", "");
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }

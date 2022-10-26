@@ -340,6 +340,7 @@ event Partial
 	*/
 	action exec(any args) returns any
 	{
+		log "exec("+args.toString()+")" at CRIT;
 		sequence<any> _args;
 		if args.empty() { _args := new sequence<any>; }
 		else { _args := args.getEntries(); }
@@ -354,6 +355,7 @@ event Partial
 			i := i + 1;
 		}
 
+		log "Calling func with "+self.args.toString() at CRIT;
 		return func(self.args);
 	}
 	/**
@@ -1026,6 +1028,39 @@ event Fn
          }
       }
 	}
+
+	/**
+	  Listens for all of the given events and then calls the given function once a second event arrives.
+
+	  Equivalent to writing:
+
+	  <tt>sequence<ValueEventName>; on all ValueEventName(fields=valueEventFields) as t1 and not (EndEventName(fields=endEventFields) or wait(timeout) { seq.append(t1); } on EndEventName(fields=endEventFields) { onComplete(seq); }</tt>
+
+	  @param valueEventName The name of the value event type.
+	  @param valueEventFields The fields in valueEventName to filter on.
+	  @param endEventName The event which signals all of the valueEventNames have been received.
+	  @param eventEventFields The fields in endEventName to filter on.
+	  @param timeout The maximum time to wait for endEventName.
+	  @param onCompleted an action<sequence<any>> to be called with all of the valueEventNames once endEventName has been received.
+	  @param onTimeout an action<sequence<any>> to be called with all of the valueEventNames if the timeout occurs before endEventName has been received.
+	*/
+	static action getAllEvents(string valueEventName, dictionary<string, any> valueEventFields, string endEventName, dictionary<string, any> endEventFields, float timeout, any onComplete, any onTimeout)
+	{
+		action<sequence<any>> returns any success := Util.getGenericAction(onComplete);
+		action<sequence<any>> returns any failure := Util.getGenericAction(onTimeout);
+		sequence<any> results := new sequence<any>;
+		on all any(typeName=valueEventName, values=valueEventFields) as a and not (any(typeName=endEventName, values=endEventFields) or wait(timeout)) {
+			results.append(a);
+		}
+		on any(typeName=endEventName, values=endEventFields) and not wait (timeout) {
+			any _ := success([<any>results]);
+		}
+		on wait (timeout) and not any(typeName=endEventName, values=endEventFields) {
+			any _ := failure([<any>results]);
+		}
+	}
+
+
 }
 
 /**
@@ -1246,7 +1281,7 @@ event Functional
 
 	  @param typeName The type of event to wait for.
 	  @param fieldName The field which will contain the values.
-	  @param The timeout to wait for all the values to arrive.
+	  @param timeout The timeout to wait for all the values to arrive.
 	  @param onCompleted an action<> to be called if all the events arrive within the timeout.
 	  @param onTimeout an action<sequence<any>> to be called if some of the events don't arrive within the timeout. The argument will be all the values which did not arrive.
 	  @see Fn.waitForAllCompleted
@@ -1273,6 +1308,28 @@ event Functional
 	{
 		return Functional(Fn.listenForAnyOf(container, typeName, fieldName, otherFields, arrivedAction));
 	}
+
+	/**
+	  Listens for all of the given events and then calls the given function once a second event arrives.
+
+	  Equivalent to writing:
+
+	  <tt>sequence<ValueEventName>; on all ValueEventName(fields=valueEventFields) as t1 and not (EndEventName(fields=endEventFields) or wait(timeout) { seq.append(t1); } on EndEventName(fields=endEventFields) { onComplete(seq); }</tt>
+
+	  @param valueEventName The name of the value event type.
+	  @param valueEventFields The fields in valueEventName to filter on.
+	  @param endEventName The event which signals all of the valueEventNames have been received.
+	  @param eventEventFields The fields in endEventName to filter on.
+	  @param timeout The maximum time to wait for endEventName.
+	  @param onCompleted an action<sequence<any>> to be called with all of the valueEventNames once endEventName has been received.
+	  @param onTimeout an action<sequence<any>> to be called with all of the valueEventNames if the timeout occurs before endEventName has been received.
+	  @see Fn.getAllEvents
+	*/
+	static action getAllEvents(string valueEventName, dictionary<string, any> valueEventFields, string endEventName, dictionary<string, any> endEventFields, float timeout, any onComplete, any onTimeout)
+	{
+		Fn.getAllEvents(valueEventName, valueEventFields, endEventName, endEventFields, timeout, onComplete, onTimeout);
+	}
+
 
 	/** @private */
 	any container;
