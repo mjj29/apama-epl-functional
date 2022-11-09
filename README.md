@@ -91,12 +91,24 @@ as:
 
 	Fn.waitForAllCompleted(sequenceIDs, "Completed", "id", TIMEOUTSECS, onCompleted, onTimeout);
 
+Lastly we have wanting to receive all events up until a termination condition and then processing them as a collection. Rather than accumulating them all in a container manually with multiple listeners like this:
+
+	sequence<ValueEventName> vals := new sequence<ValueEventName>;
+	on all ValueEventName(fields=valueEventFields) as v and not EndEventName(fields=endEventFields) or wait(timeout) { vals.append(v); }
+	on EndEventName(fields=endEventFields) and not wait(timeout) { onComplete(vals); }
+	on wait(timeout) and not EndEventName(fields=endEventFields) { onTimeout(vals); }
+
+Instead you can write:
+
+	Fn.getAllEvents("ValueEventName", {...}, "EndEventName", {...}, TIMEOUT, onComplete, onTimeout);
+
 Here is a list of the event/listener actions on `Fn`.
 
 | Action | Arguments | Return | Description |
 | ------ | --------- | ------ | ----------- |
 | listenForAnyOf | Sequence of values<br/>Event type and field name<br/>Additional fields<br/>`action<Eventtype>` | `sequence<listener>` | Create multiple listeners one for each value in the sequence. Call the given action for each matching event which arrives |
 | waitForAllCompleted | Sequence of values<br/>Event type and field name<br/>timeout<br/>`action<>` on success and `action<sequence<any>>` on timeout | nothing | Take a list of values, wait for an event with each value to be received within a timeout. Call a success or timeout action |
+| getAllEvents | Event type name<br/>Dictionary of event fields<br/>Event type name<br/>Dictionary of event fields<br/>timeout<br/>`action<sequence<any>>` on success and `action<sequence<any>>` on timeout| nothing| Wait for all events of the first type and arguments until receiving an event of the second type and arguments, then call a method with a sequence of all received events. |
 
 ## Generators
 
