@@ -42,6 +42,7 @@ monitor TestFn {
 		testlistenforany();
 		testwaitforall();
 		testgetallevents();
+		testGetEntry();
 	}
 	action testmap()
 	{
@@ -338,6 +339,11 @@ monitor TestFn {
 		route TestEvent(4, "wrongId", "bar");
 		route TestEvent(3, "wrongFoo", "baz");
 		route TestEvent(6, "checkResults", "");
+	}
+	action testGetEntry()
+	{
+		TestEvent t := TestEvent(4, "good", "foo");
+		Asserts.assertEquals("testGetEntry", Fn.getEntry("id", t), 4);
 	}
 
 	action waitCompleted(boolean expected)

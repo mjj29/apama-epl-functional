@@ -964,6 +964,15 @@ event Fn
 		return value.getAction(actionName).getGenericAction()(args);
 	}
 	/**
+	  Functor to return the named entry in the value.
+	  @param entryName The name of the entry to return
+	  @param value The object to return the entry from
+	*/
+	static action getEntry(string entryName, any value) returns any
+	{
+		return value.getEntry(entryName);
+	}
+	/**
 		Takes a sequence of values and starts a listener one for each of them, with an action to call if any of those events arrive.
 
 		Equivalent to writing:
