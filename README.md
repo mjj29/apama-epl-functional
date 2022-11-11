@@ -66,7 +66,8 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | mul | integer, float or decimal | Calculate the product of the values |
 | concat | string | Concatenates all the strings |
 | callAction | any | Calls the named function with the given args on a value. Must be used with `Fn.partial` to provide function name and args. |
-| getEntry | any | Returns the named field within a value. |
+| getEntry | any | Returns the named field within a value. Must be used with `Fn.partial` to provide field name. |
+| setEntry | any | Sets the named field to the given value. Must be used with `Fn.partial` to provide field name and value. |
 
 ## Functional listeners
 

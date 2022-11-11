@@ -965,12 +965,24 @@ event Fn
 	}
 	/**
 	  Functor to return the named entry in the value.
-	  @param entryName The name of the entry to return
-	  @param value The object to return the entry from
+	  @param entryName The name of the entry to return.
+	  @param value The object to return the entry from.
 	*/
-	static action getEntry(string entryName, any value) returns any
+	static action getEntry(any entryName, any value) returns any
 	{
 		return value.getEntry(entryName);
+	}
+	/**
+	  Functor to set the named entry in the value, returning the original value.
+	  @param entryName The name of the entry to set.
+	  @param entryValue The value to set the entry to.
+	  @param value The object to set the entry in.
+	  @returns value.
+	*/
+	static action setEntry(any entryName, any entryValue, any value) returns any
+	{
+		value.setEntry(entryName, entryValue);
+		return value;
 	}
 	/**
 		Takes a sequence of values and starts a listener one for each of them, with an action to call if any of those events arrive.

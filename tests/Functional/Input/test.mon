@@ -344,6 +344,8 @@ monitor TestFn {
 	{
 		TestEvent t := TestEvent(4, "good", "foo");
 		Asserts.assertEquals("testGetEntry", Fn.getEntry("id", t), 4);
+		TestEvent t2 := TestEvent(1, "good", "foo");
+		Asserts.assertEquals("testSetEntry", Fn.setEntry("id", 1, t), t2);
 	}
 
 	action waitCompleted(boolean expected)
