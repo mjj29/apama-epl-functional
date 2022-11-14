@@ -874,6 +874,14 @@ event Fn
 		return acc+i;
 	}
 	/**
+	  Returns true if the item has a field with the given value.
+	  Use with Fn.partial to provide the field name and field value.
+	*/
+	static action fieldEqual(any fieldName, any fieldValue, any object) returns boolean
+	{
+		return object.getEntry(fieldName) = fieldValue;
+	}
+	/**
 		A predicate which returns true if the argument is even.
 	*/
 	static action even(integer i) returns boolean

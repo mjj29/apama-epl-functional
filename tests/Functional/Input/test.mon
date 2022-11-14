@@ -47,6 +47,7 @@ monitor TestFn {
 		testmean();
 		testgtlt();
 		testrandom();
+		testfieldequal();
 	}
 	action testmap()
 	{
@@ -419,6 +420,10 @@ monitor TestFn {
 	{
 		Asserts.assertEquals("randint", Fn.reduce(Fn.slice(Fn.random(42), 0, 2, 1), Fn.sum).getTypeName(), "integer");
 		Asserts.assertEquals("randfloat", Fn.reduce(Fn.slice(Fn.random(3.14), 0, 2, 1), Fn.sum).getTypeName(), "float");
+	}
+	action testfieldequal()
+	{
+		Asserts.assertEquals("fieldEquals", Functional.count().filter(Fn.partial(Fn.fieldEqual,[<any>"value", 7])).generate(), 7);
 	}
 
 	action toFloat(integer i) returns float { return i.toFloat(); }

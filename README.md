@@ -56,8 +56,9 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | whole | True if a float or decimal does not have a fractional part.<br/>Always true for integers. |
 | \_any | True if a container of booleans contains at least one True<br/>False for the empty container. |
 | \_all | True if a container of booleans contains no False<br/>True for the empty container. |
-| gt | True if the value is above a given threshold. Must be used with `Fn.partial` to provide the threshold. For greater-than-or-equal use \_not(lt) |
-| lt | True if the value is below a given threshold. Must be used with `Fn.partial` to provide the threshold. For less-than-or-equal use \_not(gt) |
+| gt | True if the value is above a given threshold.<br/>Must be used with `Fn.partial` to provide the threshold. For greater-than-or-equal use `Fn.\_not(Fn.lt)`. |
+| lt | True if the value is below a given threshold.<br/>Must be used with `Fn.partial` to provide the threshold. For less-than-or-equal use `\_not(Fn.gt)`. |
+| fieldEqual | True if a field in the object has the given value.<br/>Must be used with	`Fn.partial` to provide the field name and value. |
 
 `Fn` also provides some functors to use with `map`, `reduce` and `accumulate`:
 
@@ -68,9 +69,9 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | mean | integer, float or decimal | Returns the mean of the values |
 | mul | integer, float or decimal | Calculate the product of the values |
 | concat | string | Concatenates all the strings |
-| callAction | any | Calls the named function with the given args on a value. Must be used with `Fn.partial` to provide function name and args. |
-| getEntry | any | Returns the named field within a value. Must be used with `Fn.partial` to provide field name. |
-| setEntry | any | Sets the named field to the given value. Must be used with `Fn.partial` to provide field name and value. |
+| callAction | any | Calls the named function with the given args on a value.<br/>Must be used with `Fn.partial` to provide function name and args. |
+| getEntry | any | Returns the named field within a value.<br/>Must be used with `Fn.partial` to provide field name. |
+| setEntry | any | Sets the named field to the given value.<br/>Must be used with `Fn.partial` to provide field name and value. |
 
 ## Functional listeners
 
