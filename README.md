@@ -48,14 +48,16 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | Predicate | Description |
 |---|---|
 | \_not | Inverts another predicate.<br/>eg: `Fn.filter(numbers, Fn._not(Fn.even))` |
-| istrue | True if a boolean is true |
-| even | True if an integer is even |
-| odd | True if an integer is odd | 
-| negative | True if an integer, float or decimal is less than 0 |
-| positive | True if an integer, float or decimal is greater than 0<br/>For including 0 use `Fn._not(Fn.negative)`|
-| whole | True if a float or decimal does not have a fractional part.<br/>Always true for integers |
-| \_any | True if a container of booleans contains at least one True<br/>False for the empty container |
-| \_all | True if a container of booleans contains no False<br/>True for the empty container |
+| istrue | True if a boolean is true. |
+| even | True if an integer is even. |
+| odd | True if an integer is odd. | 
+| negative | True if an integer, float or decimal is less than 0. |
+| positive | True if an integer, float or decimal is greater than 0<br/>For including 0 use `Fn._not(Fn.negative)`. |
+| whole | True if a float or decimal does not have a fractional part.<br/>Always true for integers. |
+| \_any | True if a container of booleans contains at least one True<br/>False for the empty container. |
+| \_all | True if a container of booleans contains no False<br/>True for the empty container. |
+| gt | True if the value is above a given threshold. Must be used with `Fn.partial` to provide the threshold. For greater-than-or-equal use \_not(lt) |
+| lt | True if the value is below a given threshold. Must be used with `Fn.partial` to provide the threshold. For less-than-or-equal use \_not(gt) |
 
 `Fn` also provides some functors to use with `map`, `reduce` and `accumulate`:
 
@@ -63,6 +65,7 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 |---|---|---|
 | increment | integer | Increments to the next integer |
 | sum | integer, float or decimal | Add up all the values |
+| mean | integer, float or decimal | Returns the mean of the values |
 | mul | integer, float or decimal | Calculate the product of the values |
 | concat | string | Concatenates all the strings |
 | callAction | any | Calls the named function with the given args on a value. Must be used with `Fn.partial` to provide function name and args. |
@@ -140,6 +143,7 @@ Here is the list of all the generator functions on `Fn` and `Functional`:
 |generatorFrom|Initial value<br/>`action<TYPE> returns TYPE`|Returns the result of calling the functor on the previous value, starting from the initial value.|
 |count|None|A sequence of increasing integers starting at 1.|
 |repeat|A value|The given value repeated infinitely.|
+|random|An integer, float or decimal|Random values of the given type, between 0 and the given value.|
 |cycle|A sequence|Generates each value in the sequence in turn, going back to the first element after completing the sequence.|
 |range|Start integer<br/>End integer (End>start)<br/>Number to skip each time (1+)|Returns a finite sequence, not a generator, of the numbers in the given range.|
 |sequenceOf|A value<br/>The number of times to repeat the value|Returns a finite sequence, not a generator, containing the given value a given number of times.|

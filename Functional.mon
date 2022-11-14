@@ -228,6 +228,27 @@ event AccumulateGenerator
 }
 
 /** @private */
+event RandomGenerator
+{
+	// create a random generator with the given limit
+	static action create(any limit) returns RandomGenerator
+	{
+		return RandomGenerator(limit, limit.getAction("rand").getGenericAction(), new sequence<any>);
+	}
+	action generate(any _) returns any
+	{
+		return randfn(emptysequence);
+	}
+	action getFuncReturnType() returns string
+	{
+		return limit.getTypeName();
+	}
+	any limit;
+	action<sequence<any>> returns any randfn;
+	sequence<any> emptysequence;
+}
+
+/** @private */
 event ArgMapGenerator
 {
 	// create the ArgMapGenerator
@@ -376,6 +397,37 @@ event Partial
 	string retType;
 	/** @private */
 	integer nArgs;
+}
+
+/** @private */
+event MeanFunctor
+{
+	any sum;
+	integer count;
+	/** @private */
+	action mean(any acc, any i) returns any
+	{
+		switch (i) {
+			case integer: {
+				if sum.empty() { sum := 0; }
+				sum := <integer> sum + i;
+				count := count + 1;
+				return (<integer> sum) / count;
+			}
+			case float: {
+				if sum.empty() { sum := 0.; }
+				sum := <float> sum + i;
+				count := count + 1;
+				return (<float> sum) / count.toFloat();
+			}
+			case decimal: {
+				if sum.empty() { sum := 0.d; }
+				sum := <decimal> sum + i;
+				count := count + 1;
+				return (<decimal> sum) / count.toDecimal();
+			}
+		}
+	}
 }
 
 /**
@@ -670,6 +722,13 @@ event Fn
 	{
 		return generatorFrom(-1, increment/* (integer i) -> i+1 */);
 	}
+	/**
+	  Returns a generator producing random numbers between 0 and the value provided, of the type provided.
+	*/
+	static action random(any limit) returns Generator
+	{
+		return Generator.create(new any, RandomGenerator.create(limit).generate);
+	}
 
 	/**
 	  Returns a range of integers from <tt>start</tt> (inclusive) to <tt>end</tt> (exclusive), incrementing <tt>stride</tt> each time.
@@ -777,6 +836,15 @@ event Fn
 		}
 	}
 	/**
+	  Returns an action for taking the mean of a sequence or generator of integer, float or decimal using accumulate or reduce.
+
+	  eg: <tt>integer mean := Fn.reduce(numbers, Fn.mean());</tt>
+	*/
+	static action mean() returns action<any, any> returns any
+	{
+		return (new MeanFunctor).mean;
+	}
+	/**
 	  Action for multiplying together the values in a sequence or generator of integer, float or decimal using accumulate or reduce.
 
 	  eg: <tt>integer product := Fn.reduce(numbers, Fn.mul);</tt>
@@ -844,6 +912,24 @@ event Fn
 			case integer: { return i < 0; }
 			case float: { return i < 0.; }
 			case decimal: { return i < 0.d; }
+		}
+	}
+	/** A predicate which returns true if the argument is less than the given threshold. */
+	static action lt(any thresh, any i) returns boolean
+	{
+		switch (i) {
+			case integer: { return i < <integer> thresh; }
+			case float: { return i < <float> thresh; }
+			case decimal: { return i < <decimal> thresh; }
+		}
+	}
+	/** A predicate which returns true if the argument is greater than the given threshold. */
+	static action gt(any thresh, any i) returns boolean
+	{
+		switch (i) {
+			case integer: { return i > <integer> thresh; }
+			case float: { return i > <float> thresh; }
+			case decimal: { return i > <decimal> thresh; }
 		}
 	}
 	/** A predicate which inverts the value of another predicate. */
@@ -1265,6 +1351,13 @@ event Functional
 	*/
 	static action range(integer start, integer end, integer stride) returns Functional
 	{ return Functional(Fn.range(start, end, stride)); }
+
+	/**
+	  Returns a Functional generator producing random numbers between 0 and the value provided, of the type provided.
+	  @see Fn.random
+	*/
+	static action random(any limit) returns Functional
+	{ return Functional(Fn.random(limit));	}
 
 	/**
 	  Repeats the given element forever.

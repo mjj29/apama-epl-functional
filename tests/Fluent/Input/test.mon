@@ -33,6 +33,7 @@ monitor TestFn {
 		testquantify();
 		testlistenforany();
 		testwaitforall();
+		testrandom();
 	}
 	action testmap()
 	{
@@ -184,6 +185,12 @@ monitor TestFn {
 		route TestEvent(10, "", "");
 		route TestEvent(20, "", "");
 		route TestEvent(30, "", "");
+	}
+
+	action testrandom()
+	{
+		Asserts.assertEquals("randint", Functional.random(42).slice(0, 2, 1).reduce(Fn.sum).getTypeName(), "integer");
+		Asserts.assertEquals("randfloat", Functional.random(3.14).slice(0, 2, 1).reduce(Fn.sum).getTypeName(), "float");
 	}
 
 	action replaceWithCows(any a) returns string { return "cow"; }

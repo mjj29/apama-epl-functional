@@ -1,5 +1,6 @@
 package com.apamax.test;
 using com.apamax.functional.Fn;
+using com.apamax.functional.Functional;
 using com.apamax.functional.Generator;
 using com.apamax.functional.Util;
 
@@ -43,6 +44,9 @@ monitor TestFn {
 		testwaitforall();
 		testgetallevents();
 		testGetEntry();
+		testmean();
+		testgtlt();
+		testrandom();
 	}
 	action testmap()
 	{
@@ -399,7 +403,25 @@ monitor TestFn {
 		}
 		route TestEvent(2000, "", "");
 	}
+	action testmean()
+	{
+		Asserts.assertEquals("mean int", Functional.count().slice(0, 9, 1).reduce(Fn.mean()), 4);
+		Asserts.assertEquals("mean float", Functional.count().slice(0, 9, 1).map(toFloat).reduce(Fn.mean()), 4.);
+	}
+	action testgtlt()
+	{
+		Asserts.assertEquals("ltint", Functional.count().slice(0, 10, 1).filter(Fn.partial(Fn.lt, 4)).get(), [0, 1, 2, 3]);
+		Asserts.assertEquals("gtint", Functional.count().slice(0, 10, 1).filter(Fn.partial(Fn.gt, 4)).get(), [5, 6, 7, 8, 9]);
+		Asserts.assertEquals("ltfloat", Functional.count().slice(0, 10, 1).map(toFloat).filter(Fn.partial(Fn.lt, 4.5)).get(), [0., 1., 2., 3., 4.]);
+		Asserts.assertEquals("gtfloat", Functional.count().slice(0, 10, 1).map(toFloat).filter(Fn.partial(Fn.gt, 4.5)).get(), [5., 6., 7., 8., 9.]);
+	}
+	action testrandom()
+	{
+		Asserts.assertEquals("randint", Fn.reduce(Fn.slice(Fn.random(42), 0, 2, 1), Fn.sum).getTypeName(), "integer");
+		Asserts.assertEquals("randfloat", Fn.reduce(Fn.slice(Fn.random(3.14), 0, 2, 1), Fn.sum).getTypeName(), "float");
+	}
 
+	action toFloat(integer i) returns float { return i.toFloat(); }
 	action replaceWithCows(any a) returns string { return "cow"; }
 	action replaceValueWithCows(string k, any v) returns string { return "cow"; }
 	action checkForCow(string s) returns boolean { return s = "cow"; }
