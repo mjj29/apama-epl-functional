@@ -42,6 +42,8 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | slice | sequence or generator<br/>Start offset (0+)<br/>End offset(0+, or -1 for the whole sequence)<br/>Distance to increment each time(1+)|Fn:A sequence containing the selected elements<br/>Functional: a new Functional|Selects a subset of a sequence, or generator. Immediately consumes enough of the generator to create a concrete sequence.|
 | consume | A generator<br/>The number of times to step it. | The generator stepped n times.|Steps a generator the given number of times, discarding the results.|
 | quantify | sequence or dictionary<br/>`action<TYPE> returns boolean`|The number of items in the sequence or dictionary for which the predicate returns true.|Runs a predicate on each item in the container and counts how many times it returns true.|
+| \_any | container of booleans | boolean | True if a container of booleans contains at least one True<br/>False for the empty container. |
+| \_all | container of booleans | boolean | True if a container of booleans contains no False<br/>True for the empty container. |
 
 `Fn` also provides some predicates to use with `filter`:
 
@@ -54,8 +56,6 @@ Here is a list of the operators provided on `Fn` and `Functional`.
 | negative | True if an integer, float or decimal is less than 0. |
 | positive | True if an integer, float or decimal is greater than 0<br/>For including 0 use `Fn._not(Fn.negative)`. |
 | whole | True if a float or decimal does not have a fractional part.<br/>Always true for integers. |
-| \_any | True if a container of booleans contains at least one True<br/>False for the empty container. |
-| \_all | True if a container of booleans contains no False<br/>True for the empty container. |
 | gt | True if the value is above a given threshold.<br/>Must be used with `Fn.partial` to provide the threshold. For greater-than-or-equal use `Fn.\_not(Fn.lt)`. |
 | lt | True if the value is below a given threshold.<br/>Must be used with `Fn.partial` to provide the threshold. For less-than-or-equal use `\_not(Fn.gt)`. |
 | fieldEqual | True if a field in the object has the given value.<br/>Must be used with	`Fn.partial` to provide the field name and value. |
