@@ -1096,43 +1096,50 @@ event Fn
 		return <sequence<listener>> map(seq, partial(listenFor, [<any> typeName, fieldName, otherFields.clone(), Util.getGenericAction(arrivedAction)]));
 	}
 
+	static action isEmpty(listener l) returns boolean { return l.empty(); }
+	static action quit(listener l) { l.quit(); }
+
+	/** TODO */
+	static action onTimeout(sequence<listener> ls, float timeout, any onTimeout)
+	{
+		action<sequence<any>> returns any failure := Util.getGenericAction(onTimeout);
+		if ls.size() > 0 then {
+			on all wait(timeout) {
+				if Fn.reduce(Fn.map(ls, isEmpty), Fn._any) {
+					any _ := Fn.map(Fn.filter(ls, isEmpty, quit));
+					failure(new sequence<any>);
+				}
+			}
+		}
+	}
+
 	/**
 	  Wait for completion of several asynchronous tasks.
 	  
 	  Equivalent to writing:
 
-	  <tt>on TypeName(fieldName=seq[0]) and TypeName(fieldName=seq[1]) and ... and not wait(timeout) { onCompleted(); }</tt>
+	  <tt>on TypeName(fieldName=seq[0]) and TypeName(fieldName=seq[1]) and ... { onCompleted(); }</tt>
 
 	  @param seq sequence<any> of values (typically IDs) to wait for.
 	  @param typeName The type of event to wait for.
 	  @param fieldName The field which will contain the values.
-	  @param The timeout to wait for all the values to arrive.
-	  @param onCompleted an action<> to be called if all the events arrive within the timeout.
-	  @param onTimeout an action<sequence<any>> to be called if some of the events don't arrive within the timeout. The argument will be all the values which did not arrive.
+	  @param onCompleted an action<> to be called if all the events arrive.
 	 */
-	static action waitForAllCompleted(any seq, string typeName, string fieldName, float timeout, any onCompleted, any onTimeout)
+	static action waitForAllCompleted(any seq, string typeName, string fieldName, any onCompleted) returns sequence<listener>
 	{
 		action<sequence<any>> returns any success := Util.getGenericAction(onCompleted);
-		action<sequence<any>> returns any failure := Util.getGenericAction(onTimeout);
 		sequence<any> values := Util.getGenericSequence(seq);
 		if values.size() = 0 {
 			any _ := success(new sequence<any>);
+			return new sequence<listener>
       } else {
 			sequence<any> valuesRemaining := values.clone();
-         listener l1 := on wait(timeout) {
-				try {
-					any _ := failure([<any>valuesRemaining]);
-				} catch(com.apama.exceptions.Exception e) {
-					log "Received exception from calling onTimeout in waitForAllCompleted: "+e.toString() at WARN;
-				}
-         }
-         listener l2 := on all any(typeName=typeName) as f and not wait(timeout) {
+         listener l := on all any(typeName=typeName) as f {
             integer idx := valuesRemaining.indexOf(<integer>f.getEntry(fieldName));
             if idx >= 0 {
                valuesRemaining.remove(idx);
                if valuesRemaining.size() = 0 {
-                  l1.quit();
-                  l2.quit();
+                  l.quit();
 						try {
 							any _ := success(new sequence<any>);
 						} catch(com.apama.exceptions.Exception e) {
@@ -1141,6 +1148,7 @@ event Fn
                }
             }
          }
+			return [l];
       }
 	}
 
@@ -1149,30 +1157,25 @@ event Fn
 
 	  Equivalent to writing:
 
-	  <tt>sequence<ValueEventName>; on all ValueEventName(fields=valueEventFields) as t1 and not (EndEventName(fields=endEventFields) or wait(timeout) { seq.append(t1); } on EndEventName(fields=endEventFields) { onComplete(seq); }</tt>
+	  <tt>sequence<ValueEventName>; on all ValueEventName(fields=valueEventFields) as t1 and not (EndEventName(fields=endEventFields) { seq.append(t1); } on EndEventName(fields=endEventFields) { onComplete(seq); }</tt>
 
 	  @param valueEventName The name of the value event type.
 	  @param valueEventFields The fields in valueEventName to filter on.
 	  @param endEventName The event which signals all of the valueEventNames have been received.
 	  @param eventEventFields The fields in endEventName to filter on.
-	  @param timeout The maximum time to wait for endEventName.
 	  @param onCompleted an action<sequence<any>> to be called with all of the valueEventNames once endEventName has been received.
-	  @param onTimeout an action<sequence<any>> to be called with all of the valueEventNames if the timeout occurs before endEventName has been received.
 	*/
-	static action getAllEvents(string valueEventName, dictionary<string, any> valueEventFields, string endEventName, dictionary<string, any> endEventFields, float timeout, any onComplete, any onTimeout)
+	static action getAllEvents(string valueEventName, dictionary<string, any> valueEventFields, string endEventName, dictionary<string, any> endEventFields, any onComplete) returns sequence<listener>
 	{
 		action<sequence<any>> returns any success := Util.getGenericAction(onComplete);
-		action<sequence<any>> returns any failure := Util.getGenericAction(onTimeout);
 		sequence<any> results := new sequence<any>;
-		on all any(typeName=valueEventName, values=valueEventFields) as a and not (any(typeName=endEventName, values=endEventFields) or wait(timeout)) {
+		listener l1 := on all any(typeName=valueEventName, values=valueEventFields) as a and not (any(typeName=endEventName, values=endEventFields)) {
 			results.append(a);
 		}
-		on any(typeName=endEventName, values=endEventFields) and not wait (timeout) {
+		listener l2 := on any(typeName=endEventName, values=endEventFields) {
 			any _ := success([<any>results]);
 		}
-		on wait (timeout) and not any(typeName=endEventName, values=endEventFields) {
-			any _ := failure([<any>results]);
-		}
+		return [l1, l2];
 	}
 
 
