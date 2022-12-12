@@ -170,18 +170,18 @@ monitor TestFn {
 		Asserts.assertEquals("waitCompleted "+expected.toString(), expected, true);
 	}
 
-	action waitTimeout(boolean expected, sequence<any> missing)
+	action waitTimeout(boolean expected)
 	{
 		Asserts.assertEquals("waitTimeout "+expected.toString(), expected, true);
-		Asserts.assertEquals("waitTimeout missing", missing, [<any>40]);
 	}
 
 	action testwaitforall()
 	{
+		sequence<boolean> b;
 		sequence<integer> ids := [10, 20, 30];
 		sequence<integer> idsTimeout := [10, 20, 30, 40];
-		Functional(ids).waitForAllCompleted("com.apamax.test.TestEvent", "id", 5., Fn.partial(waitCompleted, true), Fn.partial(waitTimeout, false));
-		Functional(idsTimeout).waitForAllCompleted("com.apamax.test.TestEvent", "id", 5., Fn.partial(waitCompleted, false), Fn.partial(waitTimeout, true));
+		Functional(ids).waitForAllCompleted("com.apamax.test.TestEvent", "id", Fn.partial(waitCompleted, true)).onTimeout(5., Fn.partial(waitTimeout, false));
+		Functional(idsTimeout).waitForAllCompleted("com.apamax.test.TestEvent", "id", Fn.partial(waitCompleted, false)).onTimeout(5., Fn.partial(waitTimeout, true));
 		route TestEvent(10, "", "");
 		route TestEvent(20, "", "");
 		route TestEvent(30, "", "");

@@ -358,24 +358,18 @@ monitor TestFn {
 		Asserts.assertEquals("waitCompleted "+expected.toString(), expected, true);
 	}
 
-	action waitTimeout(boolean expected, sequence<any> missing)
+	action waitTimeout(boolean expected)
 	{
 		Asserts.assertEquals("waitTimeout "+expected.toString(), expected, true);
-		Asserts.assertEquals("waitTimeout missing", missing, [<any>40]);
 	}
 
-	action waitThrows() { 
-		throw com.apama.exceptions.Exception("Exception from waitThrows", "testException");
-	}
 
 	action testwaitforall()
 	{
 		sequence<integer> ids := [10, 20, 30];
 		sequence<integer> idsTimeout := [10, 20, 30, 40];
-		Fn.waitForAllCompleted(ids, "com.apamax.test.TestEvent", "id", 5., Fn.partial(waitCompleted, true), Fn.partial(waitTimeout, false));
-		Fn.waitForAllCompleted(idsTimeout, "com.apamax.test.TestEvent", "id", 5., Fn.partial(waitCompleted, false), Fn.partial(waitTimeout, true));
-		Fn.waitForAllCompleted(ids, "com.apamax.test.TestEvent", "id", 5., waitThrows, waitThrows);
-		Fn.waitForAllCompleted(idsTimeout, "com.apamax.test.TestEvent", "id", 5., waitThrows, waitThrows);
+		Fn.onTimeout(Fn.waitForAllCompleted(ids, "com.apamax.test.TestEvent", "id", Fn.partial(waitCompleted, true)), 5., Fn.partial(waitTimeout, false));
+		Fn.onTimeout(Fn.waitForAllCompleted(idsTimeout, "com.apamax.test.TestEvent", "id", Fn.partial(waitCompleted, false)), 5., Fn.partial(waitTimeout, true));
 		route TestEvent(10, "", "");
 		route TestEvent(20, "", "");
 		route TestEvent(30, "", "");
@@ -387,17 +381,16 @@ monitor TestFn {
 		Asserts.assertEquals("getAllCompleted received", expected, actual);
 	}
 
-	action getAllTimeout(sequence<any> expected, boolean shouldBeCalled, sequence<any> actual)
+	action getAllTimeout(sequence<any> expected, boolean shouldBeCalled)
 	{
 		Asserts.assertEquals("getAllTimeout "+expected.toString(), shouldBeCalled, true);
-		Asserts.assertEquals("getAllTimeout received", expected, actual);
 	}
 
 	action testgetallevents()
 	{
 		sequence<any> events := [<any>TestEvent(1000, "a", "a"), TestEvent(1000, "b", "b"), TestEvent(1000, "c", "c")];
-		Fn.getAllEvents("com.apamax.test.TestEvent", {"id":<any>1000}, "com.apamax.test.TestEvent", {"id":<any>2000}, 5., Fn.partial(getAllCompleted, [<any>events, true]), Fn.partial(getAllTimeout, [<any>events, false]));
-		Fn.getAllEvents("com.apamax.test.TestEvent", {"id":<any>1000}, "com.apamax.test.TestEvent", {"id":<any>3000}, 5., Fn.partial(getAllCompleted, [<any>events, false]), Fn.partial(getAllTimeout, [<any>events, true]));
+		Fn.onTimeout(Fn.getAllEvents("com.apamax.test.TestEvent", {"id":<any>1000}, "com.apamax.test.TestEvent", {"id":<any>2000}, Fn.partial(getAllCompleted, [<any>events, true])), 5., Fn.partial(getAllTimeout, [<any>events, false]));
+		Fn.onTimeout(Fn.getAllEvents("com.apamax.test.TestEvent", {"id":<any>1000}, "com.apamax.test.TestEvent", {"id":<any>3000}, Fn.partial(getAllCompleted, [<any>events, false])), 5., Fn.partial(getAllTimeout, [<any>events, true]));
 		any t;
 		for t in events {
 			route <TestEvent> t;

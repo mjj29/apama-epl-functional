@@ -95,7 +95,7 @@ Another common pattern is having an asynchronous process with a completed event.
 
 as:
 
-	Fn.waitForAllCompleted(sequenceIDs, "Completed", "id", TIMEOUTSECS, onCompleted, onTimeout);
+	Functional(sequencIDs).waitForAllCompleted("Completed", "id", onCompleted).onTimeout(TIMEOUTSECS, onTimeout);
 
 Lastly we have wanting to receive all events up until a termination condition and then processing them as a collection. Rather than accumulating them all in a container manually with multiple listeners like this:
 
@@ -106,15 +106,16 @@ Lastly we have wanting to receive all events up until a termination condition an
 
 Instead you can write:
 
-	Fn.getAllEvents("ValueEventName", {...}, "EndEventName", {...}, TIMEOUT, onComplete, onTimeout);
+	Functional.getAllEvents("ValueEventName", {...}, "EndEventName", {...}, onComplete).onTimeout(TIMEOUTSECS, onTimeout);
 
 Here is a list of the event/listener actions on `Fn`.
 
 | Action | Arguments | Return | Description |
 | ------ | --------- | ------ | ----------- |
 | listenForAnyOf | Sequence of values<br/>Event type and field name<br/>Additional fields<br/>`action<Eventtype>` | `sequence<listener>` | Create multiple listeners one for each value in the sequence. Call the given action for each matching event which arrives |
-| waitForAllCompleted | Sequence of values<br/>Event type and field name<br/>timeout<br/>`action<>` on success and `action<sequence<any>>` on timeout | nothing | Take a list of values, wait for an event with each value to be received within a timeout. Call a success or timeout action |
-| getAllEvents | Event type name<br/>Dictionary of event fields<br/>Event type name<br/>Dictionary of event fields<br/>timeout<br/>`action<sequence<any>>` on success and `action<sequence<any>>` on timeout| nothing| Wait for all events of the first type and arguments until receiving an event of the second type and arguments, then call a method with a sequence of all received events. |
+| waitForAllCompleted | Sequence of values<br/>Event type and field name<br/>timeout<br/>`action<>` on success | `sequence<listener` | Take a list of values, wait for an event with each value to be received and call a method. |
+| getAllEvents | Event type name<br/>Dictionary of event fields<br/>Event type name<br/>Dictionary of event fields<br/>`action<sequence<any>>` on success | `sequence<listener>` | Wait for all events of the first type and arguments until receiving an event of the second type and arguments, then call a method with a sequence of all received events. |
+| onTimeout | `sequence<listener>`<br/>`action<>` on timeout | nothing | Wait for a timeout and if any of the listeners remain active quit them and call the action. |
 
 ## Generators
 

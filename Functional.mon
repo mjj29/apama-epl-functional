@@ -1097,17 +1097,27 @@ event Fn
 	}
 
 	static action isEmpty(listener l) returns boolean { return l.empty(); }
-	static action quit(listener l) { l.quit(); }
+	static action quit(listener l) returns listener { l.quit(); return l; }
 
-	/** TODO */
+	/**
+	  Takes a sequence of listeners, waits for a given timeout and then if any of the listeners are still valid quits them and calls an action.
+	
+	  Equivalent to writing (plus handling for listeners having been quit first):
+
+	  <tt>on wait (timeout) { for l in listeners { l.quit(); } onTimeout(); }</tt>
+
+	  @param ls The listeners to quite upon the timeout.
+	  @param timeout The number of seconds to wait before quitting the listeners.
+	  @param onTimeout The function to call if the listeners didn't all terminate before the timeout.
+	 */
 	static action onTimeout(sequence<listener> ls, float timeout, any onTimeout)
 	{
 		action<sequence<any>> returns any failure := Util.getGenericAction(onTimeout);
 		if ls.size() > 0 then {
-			on all wait(timeout) {
-				if Fn.reduce(Fn.map(ls, isEmpty), Fn._any) {
-					any _ := Fn.map(Fn.filter(ls, isEmpty, quit));
-					failure(new sequence<any>);
+			on wait(timeout) {
+				if Fn._any(Fn.map(ls, _not(isEmpty))) {
+					any _ := Fn.map(Fn.filter(ls, _not(isEmpty)), quit);
+					_ := failure(new sequence<any>);
 				}
 			}
 		}
@@ -1124,6 +1134,8 @@ event Fn
 	  @param typeName The type of event to wait for.
 	  @param fieldName The field which will contain the values.
 	  @param onCompleted an action<> to be called if all the events arrive.
+	  @returns A sequence of listeners suitable for passing to onTimeout.
+	  @see onTimeout
 	 */
 	static action waitForAllCompleted(any seq, string typeName, string fieldName, any onCompleted) returns sequence<listener>
 	{
@@ -1131,7 +1143,7 @@ event Fn
 		sequence<any> values := Util.getGenericSequence(seq);
 		if values.size() = 0 {
 			any _ := success(new sequence<any>);
-			return new sequence<listener>
+			return new sequence<listener>;
       } else {
 			sequence<any> valuesRemaining := values.clone();
          listener l := on all any(typeName=typeName) as f {
@@ -1164,6 +1176,8 @@ event Fn
 	  @param endEventName The event which signals all of the valueEventNames have been received.
 	  @param eventEventFields The fields in endEventName to filter on.
 	  @param onCompleted an action<sequence<any>> to be called with all of the valueEventNames once endEventName has been received.
+	  @returns A sequence of listeners suitable for passing to onTimeout.
+	  @see onTimeout
 	*/
 	static action getAllEvents(string valueEventName, dictionary<string, any> valueEventFields, string endEventName, dictionary<string, any> endEventFields, any onComplete) returns sequence<listener>
 	{
@@ -1406,14 +1420,14 @@ event Functional
 
 	  @param typeName The type of event to wait for.
 	  @param fieldName The field which will contain the values.
-	  @param timeout The timeout to wait for all the values to arrive.
 	  @param onCompleted an action<> to be called if all the events arrive within the timeout.
-	  @param onTimeout an action<sequence<any>> to be called if some of the events don't arrive within the timeout. The argument will be all the values which did not arrive.
+	  @returns A Functional containing sequence of listeners suitable for calling onTimeout on.
+	  @see onTimeout
 	  @see Fn.waitForAllCompleted
 	 */
-	action waitForAllCompleted(string typeName, string fieldName, float timeout, any onCompleted, any onTimeout)
+	action waitForAllCompleted(string typeName, string fieldName, any onCompleted) returns Functional
 	{
-		Fn.waitForAllCompleted(container, typeName, fieldName, timeout, onCompleted, onTimeout);
+		return Functional(Fn.waitForAllCompleted(container, typeName, fieldName, onCompleted));
 	}
 
 	/**
@@ -1445,14 +1459,28 @@ event Functional
 	  @param valueEventFields The fields in valueEventName to filter on.
 	  @param endEventName The event which signals all of the valueEventNames have been received.
 	  @param eventEventFields The fields in endEventName to filter on.
-	  @param timeout The maximum time to wait for endEventName.
 	  @param onCompleted an action<sequence<any>> to be called with all of the valueEventNames once endEventName has been received.
-	  @param onTimeout an action<sequence<any>> to be called with all of the valueEventNames if the timeout occurs before endEventName has been received.
+	  @returns A Functional containing sequence of listeners suitable for calling onTimeout on.
+	  @see onTimeout
 	  @see Fn.getAllEvents
 	*/
-	static action getAllEvents(string valueEventName, dictionary<string, any> valueEventFields, string endEventName, dictionary<string, any> endEventFields, float timeout, any onComplete, any onTimeout)
+	static action getAllEvents(string valueEventName, dictionary<string, any> valueEventFields, string endEventName, dictionary<string, any> endEventFields, any onComplete) returns Functional
 	{
-		Fn.getAllEvents(valueEventName, valueEventFields, endEventName, endEventFields, timeout, onComplete, onTimeout);
+		return Functional(Fn.getAllEvents(valueEventName, valueEventFields, endEventName, endEventFields, onComplete));
+	}
+	/**
+	  Takes a sequence of listeners, waits for a given timeout and then if any of the listeners are still valid quits them and calls an action.
+	
+	  Equivalent to writing (plus handling for listeners having been quit first):
+
+	  <tt>on wait (timeout) { for l in listeners { l.quit(); } onTimeout(); }</tt>
+
+	  @param timeout The number of seconds to wait before quitting the listeners.
+	  @param onTimeout The function to call if the listeners didn't all terminate before the timeout.
+	  @see Fn.onTimeout
+	 */
+	action onTimeout(float timeout, any onTimeout) {
+		Fn.onTimeout(<sequence<listener>> container, timeout, onTimeout);
 	}
 
 
