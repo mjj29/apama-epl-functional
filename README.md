@@ -1,6 +1,8 @@
 # EPL Functional
 Apama EPL Classes for functional operations
 
+**Note: this has been replaced by built-in com.apama.functional.Functional type from Apama 10.15.3**
+
 ## Supported Apama version
 
 This works with Apama 10.5 or later, and probably most of the earlier ones as well, although only later versions support lambdas. With previous versions you need to define explicit actions to use instead.
